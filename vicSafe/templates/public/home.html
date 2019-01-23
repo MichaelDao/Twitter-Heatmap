@@ -32,5 +32,78 @@
     </div>
   </div><!-- /.row -->
 </div>
+
+<div>
+   <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#"><img src="img/logo.png" style="width:50px;"></a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="home.html">Home</a></li>
+                <li><a href="map.html">Map</a></li>
+                <li><a href="#">Statistics</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </div>
+    </nav>
+    <br>
+    <form id="searchbar" class="form-inline">
+        <input class="form-control" type="text" placeholder="Search">
+        <button class="btn btn-rounded btn-sm my-0" type="submit">Search</button>
+    </form>
+    <br>
+    <div class="container-fluid text-center">
+        <div class="row content">
+            <div class="col-sm-2 sidenav"></div>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-6 col-sm-12" style="background-color:#FFf1f1">
+                                <h4>Current Location:</h4>
+                            </div>
+                            <div class="col-6 col-sm-12">
+                                <h4>Most common crimes:</h4>
+                                <p id="crime1">1st</p>
+                                <p id="crime2">2nd</p>
+                                <p id="crime3">3rd</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 text-left pie">
+                        <h4>Crime distribution:</h4>
+                        <div id="piechart"></div>
+                    </div>
+                </div>
+                <div class="row pie">
+                    <h4>Nearest Station</h4>
+                </div>
+                <div id="map" style="height:500px;background-color:aqua;"></div>
+                <!-- Hide controls until they are moved into the map. -->
+                <div style="display:none">
+                    <div class="controls zoom-control">
+                        <button class="zoom-control-in" title="Zoom In">+</button>
+                        <button class="zoom-control-out" title="Zoom Out">−</button>
+                    </div>
+                    <div class="controls maptype-control maptype-control-is-map">
+                        <button class="maptype-control-map" title="Show road map">Map</button>
+                        <button class="maptype-control-satellite" title="Show satellite imagery">Satellite</button>
+                    </div>
+                    <div class="controls fullscreen-control">
+                        <button title="Toggle Fullscreen">
+                            <div class="fullscreen-control-icon fullscreen-control-top-left"></div>
+                            <div class="fullscreen-control-icon fullscreen-control-top-right"></div>
+                            <div class="fullscreen-control-icon fullscreen-control-bottom-left"></div>
+                            <div class="fullscreen-control-icon fullscreen-control-bottom-right"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2 sidenav"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 

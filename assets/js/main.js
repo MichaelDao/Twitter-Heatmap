@@ -13,3 +13,4 @@ require('bootstrap');
 // Your own code
 require('./plugins.js');
 require('./script.js');
+require('./map.js');

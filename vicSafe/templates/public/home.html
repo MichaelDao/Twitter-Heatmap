@@ -21,17 +21,17 @@
 <script>
     var map;
 
-    // function getJSON() {
-    //     $(document).ready(function () {
-    //         $("button").click(function () {
-    //             $.getJSON("http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608", function (result) {
-    //                 $.each(result, function (i, field) {
-    //                     $("div").append(field + " ");
-    //                 });
-    //             });
-    //         });
-    //     });
-    // }
+    function getJSON() {
+        $(document).ready(function () {
+            $("button").click(function () {
+                $.getJSON("http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608", function (result) {
+                    $.each(result, function (i, field) {
+                        $("div").append(field + " ");
+                    });
+                });
+            });
+        });
+    }
 
     function initMap() {
         definePopupClass();
@@ -82,19 +82,19 @@
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 
-    // function eqfeed_callback(results) {
-    //     var heatmapData = [];
-    //     for (var i = 0; i < results.features.length; i++) {
-    //         var coords = results.features[i].geometry.coordinates;
-    //         var latLng = new google.maps.LatLng(coords[1], coords[0]);
-    //         heatmapData.push(latLng);
-    //     }
-    //     var heatmap = new google.maps.visualization.HeatmapLayer({
-    //         data: heatmapData,
-    //         dissipating: false,
-    //         map: map
-    //     });
-    // }
+    function eqfeed_callback(results) {
+        var heatmapData = [];
+        for (var i = 0; i < results.features.length; i++) {
+            var coords = results.features[i].geometry.coordinates;
+            var latLng = new google.maps.LatLng(coords[1], coords[0]);
+            heatmapData.push(latLng);
+        }
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatmapData,
+            dissipating: false,
+            map: map
+        });
+    }
 
     //    http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608
     /** Defines the Popup class. */

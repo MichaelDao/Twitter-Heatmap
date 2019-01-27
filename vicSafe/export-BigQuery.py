@@ -1,11 +1,11 @@
 from google.cloud import bigquery
 client = bigquery.Client()
 bucket_name = 'abgcorp-vicsafe'
-project = 'bigquery-public-data.stackoverflow.posts_questions'
-dataset_id = 'samples'
-table_id = 'shakespeare'
+project = 'abgcorp-vicsafe'
+dataset_id = 'vic_crime'
+table_id = 'suburb'
 
-destination_uri = 'gs://{}/{}'.format(bucket_name, 'shakespeare.csv')
+destination_uri = 'gs://{}/{}'.format(bucket_name, 'results.csv')
 dataset_ref = client.dataset(dataset_id, project=project)
 table_ref = dataset_ref.table(table_id)
 

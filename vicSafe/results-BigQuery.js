@@ -3,6 +3,7 @@
 var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
 var scopes = 'https://www.googleapis.com/auth/bigquery';
 
+console.log("This is working");
 
 // Check if the user is authorized.
 function authorize(event) {
@@ -34,10 +35,12 @@ function loadApi(){
   );
 }
 
-function getQueryResults(jobId) {
+//Temporarily removed Paramter Job ID
+//Obtains a past Queries Results and then inserts into the doHeatMap function
+function getQueryResults() {
   var request = gapi.client.bigquery.jobs.getQueryResults({
     'projectId': abgcorp-vicsafe,
-    'jobId': jobId
+    'jobId': abgcorp-vicsafe:US.bquijob_c18d47c_1688e0cde28
   });
   request.execute(function (response) {
     doHeatMap(response.result.rows);
@@ -46,6 +49,7 @@ function getQueryResults(jobId) {
 
 var heatmap;
 
+//Function inserts results in rows, into a array, for the heat map to be set
 function doHeatMap(rows) {
   var heatmapData = [];
   if (heatmap != null) {

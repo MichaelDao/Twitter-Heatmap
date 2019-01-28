@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-:
 import json
 import geocoder
 
@@ -45,9 +46,17 @@ with open(fname, 'r') as f:
 
                 # only find coordinates if location exists
                 locationString = tweet['user']['location']
+		
+		print (locationString)
+
 
                 if locationString is not None:
-                    coord = findGeoFunc(locationString)
+                    locationString.encode('utf-8').strip()
+		    print (locationString)
+		    try:
+		        coord = findGeoFunc(locationString)
+		    except:
+			print("there was an error")
 
                     all_users.append(user_id)
 
@@ -70,7 +79,8 @@ with open(fname, 'r') as f:
             elif user_id in all_users:
                 for user in users_with_geodata["data"]:
                     if user_id == user["user_id"]:
-                        user["tweets"] += 1
+                        print ('') 
+			#user["tweets"] += 1
 
     # Get some aggregated numbers on the data
     # print("The file included " + str(len(all_users)) +

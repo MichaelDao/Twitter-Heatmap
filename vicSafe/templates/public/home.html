@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-
 <div id="map" class=".container-fluid" style="height:800px;background-color:aqua;"></div>
 <div id="content">
     <blockquote class="twitter-tweet" data-theme="light">
@@ -16,89 +15,18 @@
 </div>
 <div id="content2">test</div>
 <button>jbjh</button>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="results-BigQuery.js"></script>
-<script>
-    var map;
 
-    function getJSON() {
-        $(document).ready(function () {
-            $("button").click(function () {
-                $.getJSON("http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608", function (result) {
-                    $.each(result, function (i, field) {
-                        $("div").append(field + " ");
-                    });
-                });
-            });
-        });
-    }
+console.log("This is working");
 
-    function initMap() {
-        definePopupClass();
-        //Random number generator based on array length
-        // // var rand = Math.floor(Math.random() * myArray.length);
-        var text = '{ "employees" : [' +
-            '{ "firstName":"John" , "lastName":"Doe" },' +
-            '{ "firstName":"Anna" , "lastName":"Smith" },' +
-            '{ "firstName":"Peter" , "lastName":"Jones" } ]}';
-        var obj = JSON.parse(text);
+<script src="https://apis.google.com/js/client.js">
 
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 4,
-            center: {
-                lat: -33.865427,
-                lng: 151.196123
-            },
-            mapTypeId: 'terrain'
-        });
+var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
+var scopes = 'https://www.googleapis.com/auth/bigquery';
 
-        //shows fusiontable thingo
-        /* var layer = new google.maps.FusionTablesLayer({
-             query: {
-                 select: 'location',
-                 from: '1xWyeuAhIFK_aED1ikkQEGmR8mINSCJO9Vq-BPQ'
-             },
-             heatmap: {
-                 enabled: true
-             }
-         });
-         */
-
-        popup = new Popup(
-            new google.maps.LatLng(-33.866, 151.196),
-            document.getElementById('content'));
-        popup.setMap(map);
-        popup = new Popup(
-            new google.maps.LatLng(-33.866, 111.196),
-            document.getElementById('content2'));
-        popup.setMap(map);
-
-        // Create a <script> tag and set the USGS URL as the source.
-        var script = document.createElement('script');
-
-        // This example uses a local copy of the GeoJSON stored at
-        // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
-        script.src = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
-        document.getElementsByTagName('head')[0].appendChild(script);
-    }
-
-    function eqfeed_callback(results) {
-        var heatmapData = [];
-        for (var i = 0; i < results.features.length; i++) {
-            var coords = results.features[i].geometry.coordinates;
-            var latLng = new google.maps.LatLng(coords[1], coords[0]);
-            heatmapData.push(latLng);
-        }
-        var heatmap = new google.maps.visualization.HeatmapLayer({
-            data: heatmapData,
-            dissipating: false,
-            map: map
-        });
-    }
-
-    //    http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608
-    /** Defines the Popup class. */
-    function definePopupClass() {
+Console.log("I am running up to here.");
+function definePopupClass() {
         /**
          * A customized popup on the map.
          * @param {!google.maps.LatLng} position
@@ -172,6 +100,152 @@
         };
     }
 
+// Check if the user is authorized.
+function authorize(event) {
+    console.log("It is running the Authorisation event");
+  gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
+  return false;
+}
+
+// If authorized, load BigQuery API
+function handleAuthResult(authResult) {
+  if (authResult && !authResult.error) {
+    loadApi();
+  } else {
+    console.error('Not authorized.')
+  }
+}
+
+// Load BigQuery client API
+function loadApi(){
+  gapi.client.load('bigquery', 'v2');
+}
+
+function initMap() {
+        definePopupClass();
+        //Random number generator based on array length
+        // // var rand = Math.floor(Math.random() * myArray.length);
+        var text = '{ "employees" : [' +
+            '{ "firstName":"John" , "lastName":"Doe" },' +
+            '{ "firstName":"Anna" , "lastName":"Smith" },' +
+            '{ "firstName":"Peter" , "lastName":"Jones" } ]}';
+        var obj = JSON.parse(text);
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: {
+                lat: -33.865427,
+                lng: 151.196123
+            },
+            mapTypeId: 'terrain'
+        });
+
+// Load BigQuery client API
+function loadApi(){
+    console.log("I am loading the API");
+  gapi.client.load('bigquery', 'v2').then(
+    function() {
+      initMap();
+    }
+  );
+}
+
+//Temporarily removed Paramter Job ID
+//Obtains a past Queries Results and then inserts into the doHeatMap function
+function getQueryResults(jobId) {
+    console.log("Running Query Result");
+  var request = gapi.client.bigquery.jobs.getQueryResults({
+    'projectId': abgcorp-vicsafe,
+    'jobId': jobId
+  });
+  request.execute(function (response) {
+    eqfeed_callback(response.result.rows);
+  })
+}
+
+var heatmap;
+
+//Function inserts results in rows, into a array, for the heat map to be set
+// function doHeatMap(rows) {
+//   var heatmapData = [];
+//   if (heatmap != null) {
+//     heatmap.setMap(null);
+//   }
+//   for (var i = 0; i < rows.length; i++) {
+//     var f = rows[i].f;
+//     var coords = { lat: parseFloat(f[0].v), lng: parseFloat(f[1].v) };
+//     var latLng = new google.maps.LatLng(coords);
+//     heatmapData.push(latLng);
+//   }
+//   heatmap = new google.maps.visualization.HeatmapLayer({
+//     data: heatmapData
+//   });
+//   heatmap.setMap(map);
+// }
+
+    var map;
+
+    function getJSON() {
+        $(document).ready(function () {
+            $("button").click(function () {
+                $.getJSON("http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608", function (result) {
+                    $.each(result, function (i, field) {
+                        $("div").append(field + " ");
+                    });
+                });
+            });
+        });
+    }
+
+
+
+        //shows fusiontable thingo
+        /* var layer = new google.maps.FusionTablesLayer({
+             query: {
+                 select: 'location',
+                 from: '1xWyeuAhIFK_aED1ikkQEGmR8mINSCJO9Vq-BPQ'
+             },
+             heatmap: {
+                 enabled: true
+             }
+         });
+         */
+
+        popup = new Popup(
+            new google.maps.LatLng(-33.866, 151.196),
+            document.getElementById('content'));
+        popup.setMap(map);
+        popup = new Popup(
+            new google.maps.LatLng(-33.866, 111.196),
+            document.getElementById('content2'));
+        popup.setMap(map);
+
+        // Create a <script> tag and set the USGS URL as the source.
+        var script = document.createElement('script');
+
+        // This example uses a local copy of the GeoJSON stored at
+        // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
+        script.src = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function eqfeed_callback(results) {
+        var heatmapData = [];
+        for (var i = 0; i < results.features.length; i++) {
+            var coords = results.features[i].geometry.coordinates;
+            var latLng = new google.maps.LatLng(coords[1], coords[0]);
+            heatmapData.push(latLng);
+        }
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: heatmapData,
+            dissipating: false,
+            map: map
+        });
+    }
+
+    //    http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608
+    /** Defines the Popup class. */
+    
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhXaTLKM2SpOBuFr8qSEmU7eYH5vpLpa8&libraries=visualization&callback=initMap"
     async defer></script>

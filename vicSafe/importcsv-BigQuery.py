@@ -24,5 +24,6 @@ print('Starting job {}'.format(load_job.job_id))
 load_job.result()  # Waits for table load to complete.
 print('Job finished.')
 
+
 destination_table = client.get_table(dataset_ref.table('metoo'))
 print('Loaded {} rows.'.format(destination_table.num_rows))

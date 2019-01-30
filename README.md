@@ -1,6 +1,4 @@
-===============================
 vic safe crime map
-===============================
 
 Visualize all the crime in victoria
 

@@ -9,6 +9,8 @@ outname = 'tweetProcess.json'
 geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
 
 # find geolocation with mapquest
+
+
 def findGeoFunc(location):
     # get longitutde and latitude with location query
     geoCode = geocoder.mapquest(location, key=geoCodeKey)
@@ -46,17 +48,14 @@ with open(fname, 'r') as f:
 
                 # only find coordinates if location exists
                 locationString = tweet['user']['location']
-		
-		print (locationString)
-
 
                 if locationString is not None:
                     locationString.encode('utf-8').strip()
-		    print (locationString)
-		    try:
-		        coord = findGeoFunc(locationString)
-		    except:
-			print("there was an error")
+                    print(locationString)
+                    try:
+                        coord = findGeoFunc(locationString)
+                    except:
+                        print("there was an error")
 
                     all_users.append(user_id)
 
@@ -65,7 +64,7 @@ with open(fname, 'r') as f:
                     user_data = {
                         "user_id": tweet['user']['id'],
                         "tweet_id": tweet['id'],
-                        #"location": tweet['user']['location'],
+                        # "location": tweet['user']['location'],
                         "longitude": coord[0],
                         "latitude": coord[1],
                     }
@@ -80,7 +79,7 @@ with open(fname, 'r') as f:
                 for user in users_with_geodata["data"]:
                     if user_id == user["user_id"]:
                         print ('') 
-			#user["tweets"] += 1
+            # user["tweets"] += 1
 
     # Get some aggregated numbers on the data
     # print("The file included " + str(len(all_users)) +

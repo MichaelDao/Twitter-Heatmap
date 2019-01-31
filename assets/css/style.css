@@ -89,12 +89,8 @@ footer .footer-nav {
   list-style: none;
 }
 
-        /* Optional: Makes the sample page fill the window. */
-        html,
-        body {
+#map {
             height: 100%;
-            margin: 0;
-            padding: 0;
         }
 
         /* The location pointed to by the popup tip. */

@@ -1,252 +1,269 @@
-{% extends "layout.html" %}
-{% block content %}
-<div id="map" class=".container-fluid" style="height:800px;background-color:aqua;"></div>
-<div id="content">
-    <blockquote class="twitter-tweet" data-theme="light">
-        <p lang="en" dir="ltr">Sunsets don&#39;t get much better than this one over
-            <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>.
-            <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw">#nature</a>
-            <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw">#sunset</a>
-            <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a>
-        </p>&mdash; US Department of the Interior (@Interior)
-        <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw">May 5, 2014</a>
-    </blockquote>
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-</div>
-<div id="content2">test</div>
-<button>jbjh</button>
+<!DOCTYPE html>
+<html>
+<!--
+Copyright 2016 Google Inc.
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-console.log("This is working");
-
-<script src="https://apis.google.com/js/client.js">
-
-var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
-var scopes = 'https://www.googleapis.com/auth/bigquery';
-
-Console.log("I am running up to here.");
-function definePopupClass() {
-        /**
-         * A customized popup on the map.
-         * @param {!google.maps.LatLng} position
-         * @param {!Element} content
-         * @constructor
-         * @extends {google.maps.OverlayView}
-         */
-        Popup = function (position, content) {
-            this.position = position;
-
-            content.classList.add('popup-bubble-content');
-
-            var pixelOffset = document.createElement('div');
-            pixelOffset.classList.add('popup-bubble-anchor');
-            pixelOffset.appendChild(content);
-
-            this.anchor = document.createElement('div');
-            this.anchor.classList.add('popup-tip-anchor');
-            this.anchor.appendChild(pixelOffset);
-
-            // Optionally stop clicks, etc., from bubbling up to the map.
-            this.stopEventPropagation();
-        };
-        // NOTE: google.maps.OverlayView is only defined once the Maps API has
-        // loaded. That is why Popup is defined inside initMap().
-        Popup.prototype = Object.create(google.maps.OverlayView.prototype);
-
-        /** Called when the popup is added to the map. */
-        Popup.prototype.onAdd = function () {
-            this.getPanes().floatPane.appendChild(this.anchor);
-        };
-
-        /** Called when the popup is removed from the map. */
-        Popup.prototype.onRemove = function () {
-            if (this.anchor.parentElement) {
-                this.anchor.parentElement.removeChild(this.anchor);
+<head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+    <script type="text/javascript">
+        // Client ID for OAuth 2.0 authorization against BigQuery.
+        var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
+        // BigQuery settings. Replace these with your project, dataset and table names.
+        var billingProjectId = 'abgcorp-vicsafe';
+        var publicProjectId = 'bigquery-public-data';
+        var datasetId = 'tweet_hashtag';
+        var tableName = 'metoo';
+        var scopes = 'https://www.googleapis.com/auth/bigquery';
+        var projectId = 'abgcorp-vicsafe';
+        var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+        // Limit the number of records that a query will return.    var recordLimit = 10000;
+        var recordLimit = 10000;
+        var jobCheckTimer;
+        var map;
+        var drawingManager;
+        var heatmap;
+        // Check if the user is authorized.
+        function authorize(event) {
+            gapi.auth.authorize({
+                client_id: clientId,
+                scope: scopes,
+                immediate: false
+            }, handleAuthResult);
+            return false;
+        }
+        // If authorized, load BigQuery API
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                loadApi();
+                console.log("yeet")
+            } else {
+                console.log(authResult)
+                console.error('Not authorized.')
             }
-        };
+        }
+        // Load BigQuery client API and then initialize the map.
+        function loadApi() {
+            gapi.client.load('bigquery', 'v2').then(
+                function() {
+                    initMap();
+                }
+            );
+        }
+        // Send a query to BigQuery using the Google Client API for JavaScript.
+        function sendQuery(queryString) {
+            var request = gapi.client.bigquery.jobs.query({
+                'query': queryString,
+                'timeoutMs': 30000,
+                'datasetId': datasetId,
+                'projectId': billingProjectId,
+                'useLegacySql': false,
+                'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
+            });
+            request.execute(function(response) {
+                console.log("shenma")
+                console.log(response)
+                checkJobStatus(response.jobReference.jobId);
+            });
+        }
+        // Poll a job to see if it has finished executing.
+        function checkJobStatus(jobId) {
+            var request = gapi.client.bigquery.jobs.get({
+                'projectId': billingProjectId,
+                'jobId': jobId
+            });
+            request.execute(function(response) {
+                if (response.status.errorResult) {
+                    // Handle any errors
+                    console.log(response.status.error);
+                } else {
+                    if (response.status.state == 'DONE') {
+                        // Get the results
+                        clearTimeout(jobCheckTimer);
+                        getQueryResults(jobId);
+                    } else {
+                        // Not finished, check again in a moment
+                        jobCheckTimer = setTimeout(checkJobStatus, 500, [jobId]);
+                    }
+                }
+            });
+        }
+        // When a BigQuery job has completed, fetch the results.
+        function getQueryResults(jobId) {
+            var request = gapi.client.bigquery.jobs.getQueryResults({
+                'projectId': billingProjectId,
+                'jobId': jobId
+            });
+            request.execute(function(response) {
+                doHeatMap(response.result.rows);
+            })
+        }
+        // Map-related functions.
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: 40.744593,
+                    lng: -73.990370
+                }, // Manhattan, New York.
+                zoom: 4
+            });
 
-        /** Called when the popup needs to draw itself. */
-        Popup.prototype.draw = function () {
-            var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
-            // Hide the popup when it is far out of view.
-            var display =
-                Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
+            sendQuery("SELECT longitude , latitude from tweet_hashtag.metoo");
+
+        }
+        // Add the DrawingManager and set up drawing event handlers.
+
+        // Query-related functions.
+        // Query locations by rectangular area.
+
+        // Show query results as a Heatmap.
+        function doHeatMap(rows) {
+                        Popup = createPopupClass();
+            var heatmapData = [];
+            var popups = []
+            if (heatmap != null) {
+                heatmap.setMap(null);
+            }
+
+     
+
+            for (var i = 0; i < rows.length; i++) {
+                var f = rows[i].f;
+                var coords = {
+                    lat: parseFloat(f[0].v),
+                    lng: parseFloat(f[1].v)
+                };
+                var item = document.createElement("div");
+                item.setAttribute("id","content" + i);
+                var t = document.createTextNode("xjnchzo");
+                document.body.appendChild(item);
+                item.appendChild(t);
+                // var tweetID = toString();
+                var latLng = new google.maps.LatLng(coords);
+                
+                heatmapData.push(latLng);
+                            console.log(coords);
+                console.log("test")
+                popups.push(new Popup(
+                    new google.maps.LatLng(coords.lat, coords.lng),
+                    document.getElementById('content' + i)));
+                
+            }
+            
+            console.log(popups);
+            popups.forEach((popup) => {
+                popup.setMap(map);
+                
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapData
+            });
+            heatmap.setMap(map);
+        }
+        /**
+         * Returns the Popup class.
+         *
+         * Unfortunately, the Popup class can only be defined after
+         * google.maps.OverlayView is defined, when the Maps API is loaded.
+         * This function should be called by initMap.
+         */
+        function createPopupClass() {
+            /**
+             * A customized popup on the map.
+             * @param {!google.maps.LatLng} position
+             * @param {!Element} content The bubble div.
+             * @constructor
+             * @extends {google.maps.OverlayView}
+             */
+            function Popup(position, content) {
+                this.position = position;
+
+                content.classList.add('popup-bubble');
+
+                // This zero-height div is positioned at the bottom of the bubble.
+                var bubbleAnchor = document.createElement('div');
+                bubbleAnchor.classList.add('popup-bubble-anchor');
+                bubbleAnchor.appendChild(content);
+
+                // This zero-height div is positioned at the bottom of the tip.
+                this.containerDiv = document.createElement('div');
+                this.containerDiv.classList.add('popup-container');
+                this.containerDiv.appendChild(bubbleAnchor);
+
+                // Optionally stop clicks, etc., from bubbling up to the map.
+                google.maps.OverlayView.preventMapHitsAndGesturesFrom(this.containerDiv);
+            }
+            // ES5 magic to extend google.maps.OverlayView.
+            Popup.prototype = Object.create(google.maps.OverlayView.prototype);
+
+            /** Called when the popup is added to the map. */
+            Popup.prototype.onAdd = function() {
+                this.getPanes().floatPane.appendChild(this.containerDiv);
+            };
+
+            /** Called when the popup is removed from the map. */
+            Popup.prototype.onRemove = function() {
+                if (this.containerDiv.parentElement) {
+                    this.containerDiv.parentElement.removeChild(this.containerDiv);
+                }
+            };
+
+            /** Called each frame when the popup needs to draw itself. */
+            Popup.prototype.draw = function() {
+                var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
+
+                // Hide the popup when it is far out of view.
+                var display =
+                    Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
                     'block' :
                     'none';
 
-            if (display === 'block') {
-                this.anchor.style.left = divPosition.x + 'px';
-                this.anchor.style.top = divPosition.y + 'px';
-            }
-            if (this.anchor.style.display !== display) {
-                this.anchor.style.display = display;
-            }
-        };
+                if (display === 'block') {
+                    this.containerDiv.style.left = divPosition.x + 'px';
+                    this.containerDiv.style.top = divPosition.y + 'px';
+                }
+                if (this.containerDiv.style.display !== display) {
+                    this.containerDiv.style.display = display;
+                }
+            };
 
-        /** Stops clicks/drags from bubbling up to the map. */
-        Popup.prototype.stopEventPropagation = function () {
-            var anchor = this.anchor;
-            anchor.style.cursor = 'auto';
-
-            ['click', 'dblclick', 'contextmenu', 'wheel', 'mousedown', 'touchstart',
-                'pointerdown'
-            ]
-                .forEach(function (event) {
-                    anchor.addEventListener(event, function (e) {
-                        e.stopPropagation();
-                    });
-                });
-        };
-    }
-
-// Check if the user is authorized.
-function authorize(event) {
-    console.log("It is running the Authorisation event");
-  gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
-  return false;
-}
-
-// If authorized, load BigQuery API
-function handleAuthResult(authResult) {
-  if (authResult && !authResult.error) {
-    loadApi();
-  } else {
-    console.error('Not authorized.')
-  }
-}
-
-// Load BigQuery client API
-function loadApi(){
-  gapi.client.load('bigquery', 'v2');
-}
-
-function initMap() {
-        definePopupClass();
-        //Random number generator based on array length
-        // // var rand = Math.floor(Math.random() * myArray.length);
-        var text = '{ "employees" : [' +
-            '{ "firstName":"John" , "lastName":"Doe" },' +
-            '{ "firstName":"Anna" , "lastName":"Smith" },' +
-            '{ "firstName":"Peter" , "lastName":"Jones" } ]}';
-        var obj = JSON.parse(text);
-
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 4,
-            center: {
-                lat: -33.865427,
-                lng: 151.196123
-            },
-            mapTypeId: 'terrain'
-        });
-
-// Load BigQuery client API
-function loadApi(){
-    console.log("I am loading the API");
-  gapi.client.load('bigquery', 'v2').then(
-    function() {
-      initMap();
-    }
-  );
-}
-
-//Temporarily removed Paramter Job ID
-//Obtains a past Queries Results and then inserts into the doHeatMap function
-function getQueryResults(jobId) {
-    console.log("Running Query Result");
-  var request = gapi.client.bigquery.jobs.getQueryResults({
-    'projectId': abgcorp-vicsafe,
-    'jobId': jobId
-  });
-  request.execute(function (response) {
-    eqfeed_callback(response.result.rows);
-  })
-}
-
-var heatmap;
-
-//Function inserts results in rows, into a array, for the heat map to be set
-// function doHeatMap(rows) {
-//   var heatmapData = [];
-//   if (heatmap != null) {
-//     heatmap.setMap(null);
-//   }
-//   for (var i = 0; i < rows.length; i++) {
-//     var f = rows[i].f;
-//     var coords = { lat: parseFloat(f[0].v), lng: parseFloat(f[1].v) };
-//     var latLng = new google.maps.LatLng(coords);
-//     heatmapData.push(latLng);
-//   }
-//   heatmap = new google.maps.visualization.HeatmapLayer({
-//     data: heatmapData
-//   });
-//   heatmap.setMap(map);
-// }
-
-    var map;
-
-    function getJSON() {
-        $(document).ready(function () {
-            $("button").click(function () {
-                $.getJSON("http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608", function (result) {
-                    $.each(result, function (i, field) {
-                        $("div").append(field + " ");
-                    });
-                });
-            });
-        });
-    }
-
-
-
-        //shows fusiontable thingo
-        /* var layer = new google.maps.FusionTablesLayer({
-             query: {
-                 select: 'location',
-                 from: '1xWyeuAhIFK_aED1ikkQEGmR8mINSCJO9Vq-BPQ'
-             },
-             heatmap: {
-                 enabled: true
-             }
-         });
-         */
-
-        popup = new Popup(
-            new google.maps.LatLng(-33.866, 151.196),
-            document.getElementById('content'));
-        popup.setMap(map);
-        popup = new Popup(
-            new google.maps.LatLng(-33.866, 111.196),
-            document.getElementById('content2'));
-        popup.setMap(map);
-
-        // Create a <script> tag and set the USGS URL as the source.
-        var script = document.createElement('script');
-
-        // This example uses a local copy of the GeoJSON stored at
-        // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
-        script.src = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
-        document.getElementsByTagName('head')[0].appendChild(script);
-    }
-
-    function eqfeed_callback(results) {
-        var heatmapData = [];
-        for (var i = 0; i < results.features.length; i++) {
-            var coords = results.features[i].geometry.coordinates;
-            var latLng = new google.maps.LatLng(coords[1], coords[0]);
-            heatmapData.push(latLng);
+            return Popup;
         }
-        var heatmap = new google.maps.visualization.HeatmapLayer({
-            data: heatmapData,
-            dissipating: false,
-            map: map
-        });
-    }
 
-    //    http://publish.twitter.com/oembed?format=json&url=https://twitter.com/andypiper/status/807811447862468608
-    /** Defines the Popup class. */
-    
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhXaTLKM2SpOBuFr8qSEmU7eYH5vpLpa8&libraries=visualization&callback=initMap"
-    async defer></script>
-{% endblock %}
+    </script>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc" async defer></script>
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script type="text/javascript">
+        gapi.load('client:auth', authorize);
+
+    </script>
+</body>
+
+</html>

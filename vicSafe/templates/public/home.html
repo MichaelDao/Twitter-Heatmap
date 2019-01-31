@@ -140,7 +140,7 @@ limitations under the License.
 
         // Show query results as a Heatmap.
         function doHeatMap(rows) {
-                        Popup = createPopupClass();
+            Popup = createPopupClass();
             var heatmapData = [];
             var popups = []
             if (heatmap != null) {
@@ -164,8 +164,7 @@ limitations under the License.
                 var latLng = new google.maps.LatLng(coords);
                 
                 heatmapData.push(latLng);
-                            console.log(coords);
-                console.log("test")
+
                 popups.push(new Popup(
                     new google.maps.LatLng(coords.lat, coords.lng),
                     document.getElementById('content' + i)));
@@ -178,7 +177,8 @@ limitations under the License.
                 
             });
             heatmap = new google.maps.visualization.HeatmapLayer({
-                data: heatmapData
+                data: heatmapData,
+                dissipating: true
             });
             heatmap.setMap(map);
         }

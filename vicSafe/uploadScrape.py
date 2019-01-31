@@ -11,9 +11,11 @@
 #req = service.objects().insert(bucket=bucket, body=body, media_body=filename)
 #resp = req.execute()
 
+#Alternative to uploadData-Bucket
+
 from google.cloud import storage
 
-client = storage.Client(project='project-xxx')
-bucket = client.get_bucket('bucket-xxx')
-blob = bucket.blob('test.txt')
-blob.upload_from_filename('test.txt')
+client = storage.Client(project='abgcorp-vicsafe')
+bucket = client.get_bucket('abgcorp-vicsafe')
+blob = bucket.blob('tweetScrape.json')
+blob.upload_from_filename('tweet_rawScrape.json')

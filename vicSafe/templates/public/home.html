@@ -147,12 +147,19 @@ limitations under the License.
                 heatmap.setMap(null);
             }
 
-            for (var i = 0; i < 3; i++) {
+     
+
+            for (var i = 0; i < rows.length; i++) {
                 var f = rows[i].f;
                 var coords = {
                     lat: parseFloat(f[0].v),
                     lng: parseFloat(f[1].v)
                 };
+                var item = document.createElement("div");
+                item.setAttribute("id","content" + i);
+                var t = document.createTextNode("xjnchzo");
+                document.body.appendChild(item);
+                item.appendChild(t);
                 // var tweetID = toString();
                 var latLng = new google.maps.LatLng(coords);
                 
@@ -250,9 +257,7 @@ limitations under the License.
 
 <body>
     <div id="map"></div>
-    <div id="content0">one</div>
-    <div id="content1">two</div>
-    <div id="content2">three</div>
+
     <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc" async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>
     <script type="text/javascript">

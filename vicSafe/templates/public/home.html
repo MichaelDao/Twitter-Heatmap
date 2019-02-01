@@ -45,6 +45,7 @@ limitations under the License.
         var scopes = 'https://www.googleapis.com/auth/bigquery';
         var projectId = 'abgcorp-vicsafe';
         var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         // Limit the number of records that a query will return.    
         var recordLimit = 10000;
@@ -52,7 +53,7 @@ limitations under the License.
         var map;
         var drawingManager;
         var heatmap;
-
+        var locations = [];
         // Check if the user is authorized.
         function authorize(event) {
             gapi.auth.authorize({
@@ -144,6 +145,9 @@ limitations under the License.
                 zoom: 4
             });
             sendQuery("SELECT longitude , latitude from tweet_hashtag.bigger_metoo");
+           
+            console.log(locations)
+           
         }
 
         // Add the DrawingManager and set up drawing event handlers.
@@ -170,6 +174,8 @@ limitations under the License.
                 item.setAttribute("id", "content" + i);
                 // var t = document.createTextNode("haha #YEET");
                 document.body.appendChild(item);
+
+                locations.push(coords);
                 // item.appendChild(t);
                 // var tweetID = toString();
                 var latLng = new google.maps.LatLng(coords);
@@ -181,17 +187,54 @@ limitations under the License.
                 //     document.getElementById('content' + i)));
             }
 
-            console.log(popups);
+        var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
+            '<div id="bodyContent">'+
+            '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+            'sandstone rock formation in the southern part of the '+
+            'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+            'south west of the nearest large town, Alice Springs; 450&#160;km '+
+            '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+            'features of the Uluru - Kata Tjuta National Park. Uluru is '+
+            'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
+            'Aboriginal people of the area. It has many springs, waterholes, '+
+            'rock caves and ancient paintings. Uluru is listed as a World '+
+            'Heritage Site.</p>'+
+            '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+            'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+            '(last visited June 22, 2009).</p>'+
+            '</div>'+
+            '</div>';
+
+            var infowindow = new google.maps.InfoWindow({
+            content: contentString
+            });
+
             popups.forEach((popup) => {
                 popup.setMap(map);
 
             });
+
+            var markers = locations.map(function(location, i) {
+                return new google.maps.Marker({
+                    position: location,
+                    // label: labels[i % labels.length]
+                    label: "yeeeet"
+                })
+            });
+
+        
+            var markerCluster = new MarkerClusterer(map, markers,
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
             heatmap = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
                 dissipating: false,
                 // radius: 20,
             });
-            heatmap.setMap(map);
+            // heatmap.setMap(map);
         }
 
         /**
@@ -269,7 +312,8 @@ limitations under the License.
 
 <body>
     <div id="map"></div>
-
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+    </script>
     <!-- heatmap -->
     <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
         async defer></script>

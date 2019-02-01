@@ -148,31 +148,11 @@ limitations under the License.
             sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag.bigger_metoo");
            
             console.log(locations)
-            // var tweet = document.getElementById("tweet");
-            // var id = tweet.getAttribute("tweetID");
-
-            // twttr.widgets.createTweet(
-            // id, tweet, 
-            // {
-            //     conversation : 'none',    // or all
-            //     cards        : 'hidden',  // or visible 
-            //     linkColor    : '#cc0000', // default is blue
-            //     theme        : 'light'    // or dark
-            // })
-            // .then (function (el) {
-            // el.contentDocument.querySelector(".footer").style.display = "none";
-            // });
-
+       
            
         }
 
-        // Add the DrawingManager and set up drawing event handlers.
 
-        // Query-related functions.
-        // Query locations by rectangular area.
-
-        // Show query results as a Heatmap.
-   
 
         function doHeatMap(rows) {
             Popup = createPopupClass();
@@ -205,34 +185,9 @@ limitations under the License.
 
                 tweetids.push(f[2].v);
 
-                // var marker = new google.maps.Marker({
-                //     position: coords,
-                //     map: map,
-                //     label: "yeeeet"
-                // });
-
-                // marker.addListener("click", () => {
-                //     infowindow.open(map,marker);
-                // });
-
-                // google.maps.event.addListener(marker, 'click', function(){
-                //     infowindow.close(); // Close previously opened infowindow
-                //     infowindow.setContent( "<div id='content'>"+ f[2].v +"</div>");
-                //     infowindow.open(map, marker);
-                // });
-
-                // markers.push(marker);
-
-                // popups.push(new Popup(
-                //     new google.maps.LatLng(coords.lat, coords.lng),
-                //     document.getElementById('content' + i)));
             }
 
-          
-
-            // popups.forEach((popup) => {
-            //     popup.setMap(map);
-            
+  
             var markers = locations.map(function(location, i) {
                 var marker = new google.maps.Marker({
                     position: location,

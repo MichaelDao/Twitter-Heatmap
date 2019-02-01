@@ -1,4 +1,3 @@
-
 {% extends "layout.html" %}
 
 {% block content %}
@@ -71,7 +70,7 @@ limitations under the License.
         // Load BigQuery client API and then initialize the map.
         function loadApi() {
             gapi.client.load('bigquery', 'v2').then(
-                function() {
+                function () {
                     initMap();
                 }
             );
@@ -86,7 +85,7 @@ limitations under the License.
                 'useLegacySql': false,
                 'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
             });
-            request.execute(function(response) {
+            request.execute(function (response) {
                 console.log("shenma")
                 console.log(response)
                 checkJobStatus(response.jobReference.jobId);
@@ -98,7 +97,7 @@ limitations under the License.
                 'projectId': billingProjectId,
                 'jobId': jobId
             });
-            request.execute(function(response) {
+            request.execute(function (response) {
                 if (response.status.errorResult) {
                     // Handle any errors
                     console.log(response.status.error);
@@ -120,7 +119,7 @@ limitations under the License.
                 'projectId': billingProjectId,
                 'jobId': jobId
             });
-            request.execute(function(response) {
+            request.execute(function (response) {
                 doHeatMap(response.result.rows);
             })
         }
@@ -151,8 +150,6 @@ limitations under the License.
                 heatmap.setMap(null);
             }
 
-     
-
             for (var i = 0; i < rows.length; i++) {
                 var f = rows[i].f;
                 var coords = {
@@ -160,25 +157,24 @@ limitations under the License.
                     lng: parseFloat(f[1].v)
                 };
                 var item = document.createElement("div");
-                item.setAttribute("id","content" + i);
-                var t = document.createTextNode("xjnchzo");
+                item.setAttribute("id", "content" + i);
+                var t = document.createTextNode("haha #YEET");
                 document.body.appendChild(item);
                 item.appendChild(t);
                 // var tweetID = toString();
                 var latLng = new google.maps.LatLng(coords);
-                
+
                 heatmapData.push(latLng);
 
                 popups.push(new Popup(
                     new google.maps.LatLng(coords.lat, coords.lng),
                     document.getElementById('content' + i)));
-                
             }
-            
+
             console.log(popups);
             popups.forEach((popup) => {
                 popup.setMap(map);
-                
+
             });
             heatmap = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
@@ -223,26 +219,26 @@ limitations under the License.
             Popup.prototype = Object.create(google.maps.OverlayView.prototype);
 
             /** Called when the popup is added to the map. */
-            Popup.prototype.onAdd = function() {
+            Popup.prototype.onAdd = function () {
                 this.getPanes().floatPane.appendChild(this.containerDiv);
             };
 
             /** Called when the popup is removed from the map. */
-            Popup.prototype.onRemove = function() {
+            Popup.prototype.onRemove = function () {
                 if (this.containerDiv.parentElement) {
                     this.containerDiv.parentElement.removeChild(this.containerDiv);
                 }
             };
 
             /** Called each frame when the popup needs to draw itself. */
-            Popup.prototype.draw = function() {
+            Popup.prototype.draw = function () {
                 var divPosition = this.getProjection().fromLatLngToDivPixel(this.position);
 
                 // Hide the popup when it is far out of view.
                 var display =
                     Math.abs(divPosition.x) < 4000 && Math.abs(divPosition.y) < 4000 ?
-                    'block' :
-                    'none';
+                        'block' :
+                        'none';
 
                 if (display === 'block') {
                     this.containerDiv.style.left = divPosition.x + 'px';
@@ -262,7 +258,8 @@ limitations under the License.
 <body>
     <div id="map"></div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
+        async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>
     <script type="text/javascript">
         gapi.load('client:auth', authorize);

@@ -2,7 +2,6 @@
 
 {% block content %}
 <!DOCTYPE html>
-<html>
 <!--
 Copyright 2016 Google Inc.
 Licensed under the Apache License, Version 2.0 (the 'License');
@@ -15,12 +14,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
+<html>
 <head>
-    <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Inline css -->
     <style>
         html, body {
         height: 100%;
@@ -31,6 +31,8 @@ limitations under the License.
         height: 100%;
       }
     </style>
+
+    <!-- Credentials -->
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.
         var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
@@ -178,7 +180,8 @@ limitations under the License.
             });
             heatmap = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
-                dissipating: true
+                dissipating: false,
+                // radius: 20,
             });
             heatmap.setMap(map);
         }

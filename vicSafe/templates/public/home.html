@@ -36,6 +36,7 @@ limitations under the License.
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.
         var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
+
         // BigQuery settings. Replace these with your project, dataset and table names.
         var billingProjectId = 'abgcorp-vicsafe';
         var publicProjectId = 'bigquery-public-data';
@@ -44,12 +45,14 @@ limitations under the License.
         var scopes = 'https://www.googleapis.com/auth/bigquery';
         var projectId = 'abgcorp-vicsafe';
         var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
-        // Limit the number of records that a query will return.    var recordLimit = 10000;
+
+        // Limit the number of records that a query will return.    
         var recordLimit = 10000;
         var jobCheckTimer;
         var map;
         var drawingManager;
         var heatmap;
+
         // Check if the user is authorized.
         function authorize(event) {
             gapi.auth.authorize({
@@ -59,6 +62,7 @@ limitations under the License.
             }, handleAuthResult);
             return false;
         }
+
         // If authorized, load BigQuery API
         function handleAuthResult(authResult) {
             if (authResult && !authResult.error) {
@@ -69,6 +73,7 @@ limitations under the License.
                 console.error('Not authorized.')
             }
         }
+
         // Load BigQuery client API and then initialize the map.
         function loadApi() {
             gapi.client.load('bigquery', 'v2').then(
@@ -77,6 +82,7 @@ limitations under the License.
                 }
             );
         }
+
         // Send a query to BigQuery using the Google Client API for JavaScript.
         function sendQuery(queryString) {
             var request = gapi.client.bigquery.jobs.query({
@@ -93,6 +99,7 @@ limitations under the License.
                 checkJobStatus(response.jobReference.jobId);
             });
         }
+
         // Poll a job to see if it has finished executing.
         function checkJobStatus(jobId) {
             var request = gapi.client.bigquery.jobs.get({
@@ -115,6 +122,7 @@ limitations under the License.
                 }
             });
         }
+
         // When a BigQuery job has completed, fetch the results.
         function getQueryResults(jobId) {
             var request = gapi.client.bigquery.jobs.getQueryResults({
@@ -125,6 +133,7 @@ limitations under the License.
                 doHeatMap(response.result.rows);
             })
         }
+
         // Map-related functions.
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -134,10 +143,9 @@ limitations under the License.
                 }, // Manhattan, New York.
                 zoom: 4
             });
-
             sendQuery("SELECT longitude , latitude from tweet_hashtag.bigger_metoo");
-
         }
+
         // Add the DrawingManager and set up drawing event handlers.
 
         // Query-related functions.
@@ -185,6 +193,7 @@ limitations under the License.
             });
             heatmap.setMap(map);
         }
+
         /**
          * Returns the Popup class.
          *
@@ -218,6 +227,7 @@ limitations under the License.
                 // Optionally stop clicks, etc., from bubbling up to the map.
                 google.maps.OverlayView.preventMapHitsAndGesturesFrom(this.containerDiv);
             }
+
             // ES5 magic to extend google.maps.OverlayView.
             Popup.prototype = Object.create(google.maps.OverlayView.prototype);
 
@@ -254,13 +264,13 @@ limitations under the License.
 
             return Popup;
         }
-
     </script>
 </head>
 
 <body>
     <div id="map"></div>
 
+    <!-- heatmap -->
     <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
         async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>

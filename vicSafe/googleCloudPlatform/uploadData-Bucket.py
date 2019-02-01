@@ -1,4 +1,5 @@
 #Used to upload scraped data to the google storage
+#not in use
 
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials

@@ -27,9 +27,12 @@ def parse(cls, api, raw):
 tweepy.models.Status.first_parse = tweepy.models.Status.parse
 tweepy.models.Status.parse = parse
 
+#asking for input for specific hashtag
+
+hashtagSearch = input("Enter in the hashtag you want to Scrape: ")
 counter = 0 # counter to check how many tweets are downloaded so far
 fname = 'tweetScrape.json'
-hashtag = '#metoo'
+hashtag = hashtagSearch
 
 # Stream tweets
 class MyListener(StreamListener):   

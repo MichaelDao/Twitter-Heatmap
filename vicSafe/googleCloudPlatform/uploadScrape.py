@@ -17,5 +17,6 @@ from google.cloud import storage
 
 client = storage.Client(project='abgcorp-vicsafe')
 bucket = client.get_bucket('abgcorp-vicsafe')
-blob = bucket.blob('tweetScrape.json')
-blob.upload_from_filename('tweet_rawScrape.json')
+
+blob = bucket.blob('ImpeachTrump.csv')
+blob.upload_from_filename('manual.csv')

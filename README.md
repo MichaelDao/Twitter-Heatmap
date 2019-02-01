@@ -1,7 +1,6 @@
-vic safe crime map
+#vic safe crime map
 
-Visualize all the crime in victoria
-
+###Visualize all the crime in victoria by following the quickstart guide
 
 Quickstart
 ----------
@@ -14,8 +13,10 @@ Run the following commands to bootstrap your environment ::
     cp .env.example .env
     npm install
     npm start  # run the webpack dev server and flask server using concurrently
+    
+You will see a pretty welcome screen on http://localhost:5000
 
-You will see a pretty welcome screen.
+From here on you don't need to do anything else, the rest below is for the developers
 
 Once you have installed your DBMS, run the following to create your app's
 database tables and perform the initial migration ::

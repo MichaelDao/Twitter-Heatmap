@@ -28,8 +28,6 @@ def findGeoFunc(location):
     return ([latitude, longitute])
 
 # Check if the CSV already exists, if it does then prepare our header
-
-
 def prepareCSV(user_data):
     try:
         # File already exists

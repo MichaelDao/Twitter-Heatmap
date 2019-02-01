@@ -1,6 +1,8 @@
 # Tweet processed files
 *.csv
 *.json
+*.swo
+*.out
 
 *.py[cod]
 

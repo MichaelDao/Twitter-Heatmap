@@ -131,6 +131,7 @@ limitations under the License.
                 'jobId': jobId
             });
             request.execute(function (response) {
+                console.log(response.result.rows);
                 doHeatMap(response.result.rows);
             })
         }
@@ -144,9 +145,24 @@ limitations under the License.
                 }, // Manhattan, New York.
                 zoom: 4
             });
-            sendQuery("SELECT longitude , latitude from tweet_hashtag.bigger_metoo");
+            sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag.bigger_metoo");
            
             console.log(locations)
+            // var tweet = document.getElementById("tweet");
+            // var id = tweet.getAttribute("tweetID");
+
+            // twttr.widgets.createTweet(
+            // id, tweet, 
+            // {
+            //     conversation : 'none',    // or all
+            //     cards        : 'hidden',  // or visible 
+            //     linkColor    : '#cc0000', // default is blue
+            //     theme        : 'light'    // or dark
+            // })
+            // .then (function (el) {
+            // el.contentDocument.querySelector(".footer").style.display = "none";
+            // });
+
            
         }
 
@@ -156,13 +172,18 @@ limitations under the License.
         // Query locations by rectangular area.
 
         // Show query results as a Heatmap.
+   
+
         function doHeatMap(rows) {
             Popup = createPopupClass();
             var heatmapData = [];
-            var popups = []
+            var popups = [];
+            var markers = [];
+            var tweetids = [];
             if (heatmap != null) {
                 heatmap.setMap(null);
             }
+            var infowindow = new google.maps.InfoWindow(); /* SINGLE */
 
             for (var i = 0; i < rows.length; i++) {
                 var f = rows[i].f;
@@ -182,54 +203,54 @@ limitations under the License.
 
                 heatmapData.push(latLng);
 
+                tweetids.push(f[2].v);
+
+                // var marker = new google.maps.Marker({
+                //     position: coords,
+                //     map: map,
+                //     label: "yeeeet"
+                // });
+
+                // marker.addListener("click", () => {
+                //     infowindow.open(map,marker);
+                // });
+
+                // google.maps.event.addListener(marker, 'click', function(){
+                //     infowindow.close(); // Close previously opened infowindow
+                //     infowindow.setContent( "<div id='content'>"+ f[2].v +"</div>");
+                //     infowindow.open(map, marker);
+                // });
+
+                // markers.push(marker);
+
                 // popups.push(new Popup(
                 //     new google.maps.LatLng(coords.lat, coords.lng),
                 //     document.getElementById('content' + i)));
             }
 
-        var contentString = '<div id="content">'+
-            '<div id="siteNotice">'+
-            '</div>'+
-            '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
-            '<div id="bodyContent">'+
-            '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-            'sandstone rock formation in the southern part of the '+
-            'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-            'south west of the nearest large town, Alice Springs; 450&#160;km '+
-            '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-            'features of the Uluru - Kata Tjuta National Park. Uluru is '+
-            'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
-            'Aboriginal people of the area. It has many springs, waterholes, '+
-            'rock caves and ancient paintings. Uluru is listed as a World '+
-            'Heritage Site.</p>'+
-            '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-            'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-            '(last visited June 22, 2009).</p>'+
-            '</div>'+
-            '</div>';
+          
 
-            var infowindow = new google.maps.InfoWindow({
-            content: contentString
-            });
-
-            popups.forEach((popup) => {
-                popup.setMap(map);
-
-            });
-
+            // popups.forEach((popup) => {
+            //     popup.setMap(map);
+            
             var markers = locations.map(function(location, i) {
                 var marker = new google.maps.Marker({
                     position: location,
                     // label: labels[i % labels.length]
+                    map: map,
                     label: "yeeeet"
                 });
                 marker.addListener("click", () => {
+                    infowindow.setContent("<iframe border=0 frameborder=0 height=250 width=550 src='https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fjack%2Fstatus%2F'" + tweetids[i] + "></iframe>")
+                    // infowindow.setContent( "<div id='tweet' tweetID='" + tweetids[i] +"'>"+tweetids[i]+"</div>");
                     infowindow.open(map,marker);
                 });
                 return marker
             });
 
-        
+           
+
+            console.log(markers)
             var markerCluster = new MarkerClusterer(map, markers,
             {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
@@ -239,6 +260,7 @@ limitations under the License.
                 // radius: 20,
             });
             // heatmap.setMap(map);
+            
         }
 
         /**
@@ -322,6 +344,8 @@ limitations under the License.
     <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
         async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>
+    <script sync src="https://platform.twitter.com/widgets.js"></script>
+
     <script type="text/javascript">
         gapi.load('client:auth', authorize);
 

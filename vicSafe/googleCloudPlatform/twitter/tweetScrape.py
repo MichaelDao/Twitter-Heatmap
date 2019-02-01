@@ -48,8 +48,11 @@ class MyListener(StreamListener):
                 global counter
                 counter += 1
                 print('Tweet no. ' + str(counter) + ' downloaded\n')
-
+                if(counter == 10)
+                    break
                 return True
+
+           
 
         except BaseException as e:
             print("Error on_data: %s" % str(e))

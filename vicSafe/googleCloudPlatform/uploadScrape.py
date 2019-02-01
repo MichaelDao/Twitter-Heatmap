@@ -18,5 +18,7 @@ from google.cloud import storage
 client = storage.Client(project='abgcorp-vicsafe')
 bucket = client.get_bucket('abgcorp-vicsafe')
 
-blob = bucket.blob('ImpeachTrump.csv')
+uploadData = input("Enter in name of file you want to upload")
+
+blob = bucket.blob(uploadData + '.csv')
 blob.upload_from_filename('manual.csv')

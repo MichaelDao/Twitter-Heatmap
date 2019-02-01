@@ -9,6 +9,10 @@ job_config.skip_leading_rows = 1
 # The source format defaults to CSV, so the line below is optional.
 #uri = 'gs://abgcorp-vicsafe/ImpeachTrump.csv'
 
+#Ask for Hashtag
+
+tableName = input("Enter in the name of the Table you want to create: ")
+
 #Where we define the Schema of the table
 schema = [
     bigquery.SchemaField('user_id', 'INTEGER', mode='REQUIRED'),
@@ -16,9 +20,8 @@ schema = [
     bigquery.SchemaField('tweet_id', 'INTEGER', mode='REQUIRED'),
     bigquery.SchemaField('longitude', 'FLOAT', mode='REQUIRED'),
 ]
-
 #create table in BigQuery
-table_ref = dataset_ref.table('ImpeachTrump')
+table_ref = dataset_ref.table(tableName)
 table = bigquery.Table(table_ref, schema)
 table = client.create_table(table)  # API request
 

@@ -1,6 +1,13 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<div id="chart_div"></div>
+<div class="container">
+    <h1 class="mt-5">About</h1>
+    <div class="row">
+        <p class="lead">All our analytic data should go here</p>
+    </div>
+</div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
@@ -155,11 +162,4 @@
     gapi.load('client:auth', authorize);
 
 </script>
-<div id="chart_div"></div>
-<div class="container">
-    <h1 class="mt-5">About</h1>
-    <div class="row">
-        <p class="lead">All our analytic data should go here</p>
-    </div>
-</div>
 {% endblock %}

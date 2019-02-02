@@ -30,6 +30,7 @@ tweepy.models.Status.parse = parse
 counter = 0 # counter to check how many tweets are downloaded so far
 fname = 'tweetScrape.json'
 hashtag = '#metoo'
+# attempt to make this as input
 
 # Stream tweets
 class MyListener(StreamListener):   

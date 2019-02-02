@@ -1,0 +1,69 @@
+*** Starting uWSGI 2.0.15-debian (64bit) on [Sat Feb  2 15:01:09 2019] ***
+compiled with version: 7.3.0 on 28 September 2018 15:41:15
+os: Linux-4.15.0-1021-aws #21-Ubuntu SMP Tue Aug 28 10:23:07 UTC 2018
+nodename: ip-172-31-14-140
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 1
+current working directory: /home/ubuntu/Twitter-Heatmap
+writing pidfile to /home/ubuntu/Twitter-Heatmap/dummyapp.pid
+detected binary path: /usr/bin/uwsgi-core
+dropping root privileges as early as possible
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 3841
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:3033 fd 3
+dropping root privileges after socket binding
+Python version: 2.7.15rc1 (default, Nov 12 2018, 14:31:15)  [GCC 7.3.0]
+Set PythonHome to /home/ubuntu/Twitter-Heatmap
+ImportError: No module named site
+*** Starting uWSGI 2.0.15-debian (64bit) on [Sat Feb  2 15:02:58 2019] ***
+compiled with version: 7.3.0 on 28 September 2018 15:41:15
+os: Linux-4.15.0-1021-aws #21-Ubuntu SMP Tue Aug 28 10:23:07 UTC 2018
+nodename: ip-172-31-14-140
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 1
+current working directory: /home/ubuntu/Twitter-Heatmap
+writing pidfile to /home/ubuntu/Twitter-Heatmap/dummyapp.pid
+detected binary path: /usr/bin/uwsgi-core
+dropping root privileges as early as possible
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 3841
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:3033 fd 3
+dropping root privileges after socket binding
+Python version: 2.7.15rc1 (default, Nov 12 2018, 14:31:15)  [GCC 7.3.0]
+Set PythonHome to /home/ubuntu/Twitter-Heatmap
+ImportError: No module named site
+*** Starting uWSGI 2.0.15-debian (64bit) on [Sat Feb  2 15:04:32 2019] ***
+compiled with version: 7.3.0 on 28 September 2018 15:41:15
+os: Linux-4.15.0-1021-aws #21-Ubuntu SMP Tue Aug 28 10:23:07 UTC 2018
+nodename: ip-172-31-14-140
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 1
+current working directory: /home/ubuntu/Twitter-Heatmap
+writing pidfile to /home/ubuntu/Twitter-Heatmap/dummyapp.pid
+detected binary path: /usr/bin/uwsgi-core
+dropping root privileges as early as possible
+*** WARNING: you are running uWSGI without its master process manager ***
+your processes number limit is 3841
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:3033 fd 3
+dropping root privileges after socket binding
+Python version: 2.7.15rc1 (default, Nov 12 2018, 14:31:15)  [GCC 7.3.0]
+Set PythonHome to /home/ubuntu/Twitter-Heatmap
+ImportError: No module named site

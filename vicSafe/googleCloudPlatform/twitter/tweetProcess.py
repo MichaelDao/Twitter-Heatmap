@@ -14,7 +14,6 @@ csvName = "ready.csv"
 
 # find geolocation with mapquest
 
-
 def findGeoFunc(location):
     # get longitutde and latitude with location query
     geoCode = geocoder.mapquest(location, key=geoCodeKey)

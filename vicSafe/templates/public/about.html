@@ -28,7 +28,6 @@
         packages: ['corechart', 'bar']
     });
 
-
     // Check if the user is authorized.
     function authorize(event) {
         gapi.auth.authorize({
@@ -37,16 +36,12 @@
             immediate: false
         }, handleAuthResult);
         return false;
-
     }
 
     // If authorized, load BigQuery API
     function handleAuthResult(authResult) {
         if (authResult && !authResult.error) {
             loadApi();
-
-            console.log("yeet")
-
         } else {
             console.log(authResult)
             console.error('Not authorized.')
@@ -139,19 +134,18 @@
                 [tweetID[i], tweetFavs[i]]
             ])
         var options = {
-            title: 'tweet id',
+            title: 'most liked tweets',
             chartArea: {
                 width: '50%'
             },
             hAxis: {
-                title: 'favourites amount',
+                title: 'likes amount',
                 minValue: 0
             },
             vAxis: {
                 title: 'tweet id'
             }
         };
-
         var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
         chart.draw(data, options);
     }
@@ -160,6 +154,5 @@
 <script src="https://apis.google.com/js/client.js"></script>
 <script type="text/javascript">
     gapi.load('client:auth', authorize);
-
 </script>
 {% endblock %}

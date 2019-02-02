@@ -5,12 +5,12 @@ import csv
 
 # Tweets are stored in in file "fname". In the file used for this script,
 # each tweet was stored on one line
-fname = 'tweetScrape.json'
-outname = 'tweetProcess.json'
+fname = 'impeachTrumpRaw.json'
+outname = 'impeachTrumpProcessed.json'
 geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
 
 # The json  file variable names
-csvName = "ready.csv"
+csvName = "ImpeachTrump.csv"
 
 # find geolocation with mapquest
 

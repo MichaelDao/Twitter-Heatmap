@@ -125,8 +125,8 @@
     function drawMultSeries() {
 
         var data = google.visualization.arrayToDataTable([
-            ['id', 'favourites', ],
-            [tweetID[0], tweetFavs[0]]
+            ['id', 'favourites', { role: 'style' }],
+            [tweetID[0], tweetFavs[0], '#00aced'],
 
         ]);
         for (var i = 1; i < tweetID.length; i++)

@@ -74,12 +74,10 @@ limitations under the License.
             // if toggle the heat map
             if(opt != 1) {
                 dot_on = true;
-                console.log("dot on")
                 initMap()
                 // doHeatMap(response_d);
             } else {
                 dot_on = false
-                console.log("dot off")
                 initMap()
                 // doHeatMap(response_d);
 
@@ -101,9 +99,7 @@ limitations under the License.
         function handleAuthResult(authResult) {
             if (authResult && !authResult.error) {
                 loadApi();
-                console.log("yeet")
             } else {
-                console.log(authResult)
                 console.error('Not authorized.')
             }
         }
@@ -128,7 +124,6 @@ limitations under the License.
                 'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
             });
             request.execute(function (response) {
-                console.log("shenma")
                 console.log(response)
                 checkJobStatus(response.jobReference.jobId);
             });
@@ -180,7 +175,6 @@ limitations under the License.
             });
             sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag.bigger_metoo");
             locations = []
-            console.log(locations)
        
            
         }
@@ -249,7 +243,6 @@ limitations under the License.
                     markers[i].removeEventListener("click");
                     markers.shift();
                 }
-                console.log(markers);
                 heatmap.setMap(map);
             
             }

@@ -1,0 +1,45 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'run', 'quick-deploy' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 verbose run-script [ 'prequick-deploy', 'quick-deploy', 'postquick-deploy' ]
+5 info lifecycle vicSafe@1.0.0~prequick-deploy: vicSafe@1.0.0
+6 silly lifecycle vicSafe@1.0.0~prequick-deploy: no script for prequick-deploy, continuing
+7 info lifecycle vicSafe@1.0.0~quick-deploy: vicSafe@1.0.0
+8 verbose lifecycle vicSafe@1.0.0~quick-deploy: unsafe-perm in lifecycle true
+9 verbose lifecycle vicSafe@1.0.0~quick-deploy: PATH: /usr/share/npm/bin/node-gyp-bin:/home/ubuntu/Twitter-Heatmap/node_modules/.bin:/home/ubuntu/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+10 verbose lifecycle vicSafe@1.0.0~quick-deploy: CWD: /home/ubuntu/Twitter-Heatmap
+11 silly lifecycle vicSafe@1.0.0~quick-deploy: Args: [ '-c', 'flask run --host=0.0.0.0 --port=80' ]
+12 silly lifecycle vicSafe@1.0.0~quick-deploy: Returned: code: 1  signal: null
+13 info lifecycle vicSafe@1.0.0~quick-deploy: Failed to exec quick-deploy script
+14 verbose stack Error: vicSafe@1.0.0 quick-deploy: `flask run --host=0.0.0.0 --port=80`
+14 verbose stack Exit status 1
+14 verbose stack     at EventEmitter.<anonymous> (/usr/share/npm/lib/utils/lifecycle.js:232:16)
+14 verbose stack     at emitTwo (events.js:126:13)
+14 verbose stack     at EventEmitter.emit (events.js:214:7)
+14 verbose stack     at ChildProcess.<anonymous> (/usr/share/npm/lib/utils/spawn.js:24:14)
+14 verbose stack     at emitTwo (events.js:126:13)
+14 verbose stack     at ChildProcess.emit (events.js:214:7)
+14 verbose stack     at maybeClose (internal/child_process.js:925:16)
+14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+15 verbose pkgid vicSafe@1.0.0
+16 verbose cwd /home/ubuntu/Twitter-Heatmap
+17 error Linux 4.15.0-1021-aws
+18 error argv "/usr/bin/node" "/usr/bin/npm" "run" "quick-deploy"
+19 error node v8.10.0
+20 error npm  v3.5.2
+21 error code ELIFECYCLE
+22 error vicSafe@1.0.0 quick-deploy: `flask run --host=0.0.0.0 --port=80`
+22 error Exit status 1
+23 error Failed at the vicSafe@1.0.0 quick-deploy script 'flask run --host=0.0.0.0 --port=80'.
+23 error Make sure you have the latest version of node.js and npm installed.
+23 error If you do, this is most likely a problem with the vicSafe package,
+23 error not with npm itself.
+23 error Tell the author that this fails on your system:
+23 error     flask run --host=0.0.0.0 --port=80
+23 error You can get information on how to open an issue for this project with:
+23 error     npm bugs vicSafe
+23 error Or if that isn't available, you can get their info via:
+23 error     npm owner ls vicSafe
+23 error There is likely additional logging output above.
+24 verbose exit [ 1, true ]

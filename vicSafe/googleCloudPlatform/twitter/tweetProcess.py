@@ -108,13 +108,19 @@ try:
             first = True
     
             # Create header
-         
+            # for key, value in user_data.items():
+            #     # special first case
+            #     if first:
+            #         first = False
+            #         newFile.write(str(key))
+            #     else:
+            #         newFile.write("," + str(key))
             
             # New line and close header writing
             if(typeOfInput == 'date'):
                 newFile.write("month, " + "dayNum, " + "time, " + "year " + "\n")
             elif(typeOfInput == 'location'):
-                newFile.write("userId, " + "tweetId, " + "longitude, " + "latitude " + "favourite" + "\n")
+                newFile.write("userId, " + "tweetId, " + "longitude, " + "latitude " + "favourites" + "\n")
             
             newFile.close()
             

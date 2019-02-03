@@ -9,6 +9,17 @@ from tweepy import StreamListener
 from tweepy import OAuthHandler
 import json
 
+client = storage.Client(project='abgcorp-vicsafe')
+bucket = client.get_bucket('abgcorp-vicsafe')
+
+from google.cloud import bigquery
+client = bigquery.Client()
+dataset_id = 'tweet_hashtag'
+dataset_ref = client.dataset(dataset_id)
+job_config = bigquery.LoadJobConfig()
+job_config.autodetect = True
+job_config.skip_leading_rows = 1
+
 counterTweet = 0
 
 # Input credentials here
@@ -115,9 +126,10 @@ def processLocation(fnameInput):
                 fCheck.close()
 
             except FileNotFoundError:
+                print("I am working 1")
                 # Open a new file
                 newFile = open(outName + '.csv', "w+")
-
+                print("I am working 2")
                 first = True
 
                 # Create header
@@ -166,6 +178,9 @@ def processLocation(fnameInput):
 
             # Loop through each line in our raw file
             for line in f:
+                if line is None:
+                    print("nothing found")
+                    continue
                 tweet = json.loads(line)
 
                 # if the tweet has a user id, analyse
@@ -187,6 +202,11 @@ def processLocation(fnameInput):
 
                             # Attempt at unicode bugfix, use try catch if continues
                             locationString.encode('utf-8').strip()
+                            try:
+                                coord = findGeoFunc(locationString)
+                            except:
+                                uploadData()
+                                print('Some shit happened ------- but uploaded anyway')
                             coord = findGeoFunc(locationString)
 
                             # add this gelocated user to list
@@ -224,54 +244,15 @@ def processLocation(fnameInput):
             fout.write(json.dumps(users_with_geodata, indent=4))
     uploadDataLocation(fnameInput + "_location")
 
-def processDate(fileName):
+def processDate(fnameInput):
     # Tweets are stored in in file "fname". In the file used for this script,
     # each tweet was stored on one line
-    fnameInput = fileName
-    outnameInput = fileName
-    
+    #fnameInput = input("Enter Filename of Scrape to Process:")
 
-    fname = 'data/' + fnameInput + '.json'
-    outname = 'data/' + outnameInput + '.json'
-    geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
-
-    # The json  file variable names
-    csvName = 'data/' + outnameInput + ".csv"
+    fname = 'data/' + fnameInput + '_raw.json'
+    outName = 'data/' + fnameInput + '_date'
 
     # Wrapped in a try catch to help process json file on interrupt
-
-    # splice time into four categories
-
-
-    def setUserDateData():
-
-        array = tweet['created_at']
-
-        # array = date.split(" ");
-
-        print(array)
-
-        day, month, dayNum, time, ran, year = array.split()
-
-        abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
-
-        hourTime, minuteTime, secTime = time.split(":")
-
-        intMonth = abbr_to_num[month]
-        intDayNum = int(dayNum)
-        intTime = int(hourTime)
-        intYear = int(year)
-
-        # Give users some data to find them by. User_id listed separately
-        # to make iterating this data later easier
-        user_data = {
-            "month": intMonth,
-            "dayNum": intDayNum,
-            "time": intTime,
-            "year": intYear,
-        }
-        return user_data
-
     try:
         # find geolocation with mapquest
         def findGeoFunc(location):
@@ -281,7 +262,7 @@ def processDate(fileName):
             longitute = geoCode.lng
 
             # Log to console
-            print(str(location) + "\n Latitude:" + str(latitude) + " Longitude:" + str(longitute) + '\n')
+            # print(str(location) + "\n Latitude:" + str(latitude) + " Longitude:" + str(longitute) + '\n')
 
             # return as array
             return ([latitude, longitute])
@@ -290,40 +271,46 @@ def processDate(fileName):
         def prepareCSV(user_data):
             try:
                 # File already exists
-                fCheck = open(csvName, 'r')
+                fCheck = open(outName + '.csv', 'r')
                 fCheck.close()
 
             except FileNotFoundError:
-                # Keep preset values file not found
-                print('Creating new file \n')
-
                 # Open a new file
-                newFile = open(csvName, "w+")
+                newFile = open(outName + '.csv', "w+")
 
                 first = True
 
                 # Create header
-                # for key, value in user_data.items():
-                #     # special first case
-                #     if first:
-                #         first = False
-                #         newFile.write(str(key))
-                #     else:
-                #         newFile.write("," + str(key))
+                for key, value in user_data.items():
+                    # special first case
+                    if first:
+                        first = False
+                        newFile.write(str(key))
+                    else:
+                        newFile.write("," + str(key))
 
                 # New line and close header writing
-                
-                newFile.write("month, " + "dayNum, " + "time, " + "year " + "\n")
-                
+                newFile.write('\n')
                 newFile.close()
 
-            addLine = open(csvName, 'a')
-            
-           
-            tweetCSVLine = str(user_data['month']) + ", " + str(user_data['dayNum']) + \
-                    ", " + str(user_data['time']) + ", " + str(user_data['year']) + '\n'
+            addLine = open(outName + '.csv', 'a')
+
+            # Create header
+            first = True
+
+            for key, value in user_data.items():
+                # special first case
+                if first:
+                    first = False
+                    addLine.write(str(value))
+                else:
+                    addLine.write("," + str(value))
+
+            tweetCSVLine =  str(user_data['month']) + ',' + str(user_data['dayNum']) + \
+            ',' + str(user_data['time']) + ',' + str(user_data['year']) +  '\n'
 
             addLine.write(tweetCSVLine)
+            addLine.close()
 
         with open(fname, 'r') as f:
             # Create dictionary to later be stored as JSON. All data will be included
@@ -339,6 +326,9 @@ def processDate(fileName):
 
             # Loop through each line in our raw file
             for line in f:
+                if line is None:
+                    print("nothing found")
+                    continue
                 tweet = json.loads(line)
 
                 # if the tweet has a user id, analyse
@@ -357,26 +347,37 @@ def processDate(fileName):
 
                         # Location is not null
                         if locationString is not None:
-
+                            print("It's working")    
                             # Attempt at unicode bugfix, use try catch if continues
                             locationString.encode('utf-8').strip()
-                            try:
-                                coord = findGeoFunc(locationString)
-                            except:
-                                uploadData()
-                                print('Some shit happened ------- but uploaded anyway')
+                            coord = findGeoFunc(locationString)
+
                             # add this gelocated user to list
                             all_users.append(user_id)
 
                             # Give users some data to find them by. User_id listed separately
                             # to make iterating this data later easier
+                            array = tweet['created_at']
 
-                            if(typeOfInput == 'location'):
-                                user_data = setUserLocData()
-                            elif(typeOfInput == 'date'):
-                                user_data = setUserDateData()
-                                print(user_data)
+                            day, month, dayNum, time, ran, year = array.split()
 
+                            abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
+
+                            hourTime, minuteTime, secTime = time.split(":")
+
+                            intMonth = abbr_to_num[month]
+                            intDayNum = int(dayNum)
+                            intTime = int(hourTime)
+                            intYear = int(year)
+
+                            # Give users some data to find them by. User_id listed separately
+                            # to make iterating this data later easier
+                            user_data = {
+                                "month": intMonth,
+                                "dayNum": intDayNum,
+                                "time": intTime,
+                                "year": intYear,
+                            }
                             prepareCSV(user_data)  # prepare CSV file for saving
 
                         # Add only tweets with some geo data to .json.
@@ -386,19 +387,18 @@ def processDate(fileName):
                             geo_tweets += 1
 
             # how many of our users have geodata?
-            print("The file included " + str(len(users_with_geodata['data'])) +
-                  " unique users who tweeted with geo data")
+            print("The file included " + str(len(users_with_geodata['data']))
+                  + " unique users who tweeted with geo data")
 
         # Save data to JSON file at the end of the process
-
-            with open(outname, 'w') as fout:
-                fout.write(json.dumps(users_with_geodata, indent=4))
-    except KeyboardInterrupt:
-        print("\nKeyboard interrupt detected")
-        print("Creating unfinished JSON file")
-        with open("Unfinished" + outname, 'w') as fout:
+        with open(outName + '.json', 'w') as fout:
             fout.write(json.dumps(users_with_geodata, indent=4))
-    uploadDataDate(fileName + "_date");
+
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupt detected, Creating unfinished JSON file")
+        with open(outName + '.json', 'w') as fout:
+            fout.write(json.dumps(users_with_geodata, indent=4))
+    uploadDataLocation(fnameInput + "_date")
 
 def uploadDataLocation(fileName):
     client = storage.Client(project='abgcorp-vicsafe')
@@ -407,6 +407,12 @@ def uploadDataLocation(fileName):
     uploadData = fileName
     fileData = fileName
     createTableLocation(fileName)
+    
+# You are creating the file into the bucket, with upload data as a name
+    blob = bucket.blob(uploadData + '.csv')
+
+# look for the local file that you want to upload
+    blob.upload_from_filename('data/' + fileData + '.csv')
 
 def uploadDataDate(fileName):
     client = storage.Client(project='abgcorp-vicsafe')
@@ -415,13 +421,22 @@ def uploadDataDate(fileName):
     uploadData = fileName
     fileData = fileName
     createTableDate(fileName)
+    
+# You are creating the file into the bucket, with upload data as a name
+    blob = bucket.blob(uploadData + '.csv')
+
+# look for the local file that you want to upload
+    blob.upload_from_filename('data/' + fileName + '.csv')
 
 def createTableDate(fileName):
     tableName = fileName
 
     #Where we define the Schema of the table
     schema = [
-        bigquery.SchemaField('Date', 'STRING', mode='REQUIRED'),
+        bigquery.SchemaField('month', 'STRING', mode='REQUIRED'),
+        bigquery.SchemaField('dayNum', 'STRING', mode='REQUIRED'),
+        bigquery.SchemaField('time', 'STRING', mode='REQUIRED'),
+        bigquery.SchemaField('year', 'STRING', mode='REQUIRED'),
     ]
     #create table in BigQuery
     table_ref = dataset_ref.table(tableName)
@@ -429,14 +444,15 @@ def createTableDate(fileName):
     table = client.create_table(table)  # API request
 
 def createTableLocation(fileName):
-    tableName = input("Enter in the name of the Table you want to create: ")
+    tableName = fileName
 
     #Where we define the Schema of the table
     schema = [
         bigquery.SchemaField('user_id', 'INTEGER', mode='REQUIRED'),
-        bigquery.SchemaField('latitude', 'FLOAT', mode='REQUIRED'),
         bigquery.SchemaField('tweet_id', 'INTEGER', mode='REQUIRED'),
         bigquery.SchemaField('longitude', 'FLOAT', mode='REQUIRED'),
+        bigquery.SchemaField('latitude', 'FLOAT', mode='REQUIRED'),
+        bigquery.SchemaField('favourites', 'INTEGER', mode='REQUIRED')
     ]
     #create table in BigQuery
     table_ref = dataset_ref.table(tableName)
@@ -445,10 +461,10 @@ def createTableLocation(fileName):
 
 
 # You are creating the file into the bucket, with upload data as a name
-    blob = bucket.blob(uploadData + '.csv')
+    blob = bucket.blob(fileName + '.csv')
 
 # look for the local file that you want to upload
-    blob.upload_from_filename('data/' + fileData + '.csv')
+    blob.upload_from_filename('data/' + fileName + '.csv')
 
 # GOTO create table location file
 

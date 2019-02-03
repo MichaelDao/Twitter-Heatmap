@@ -17,7 +17,6 @@ auth.set_access_token(access_token, access_token_secret)
 # authenticate API
 api = tweepy.API(auth)
 
-
 @classmethod
 def parse(cls, api, raw):
     status = cls.first_parse(api, raw)
@@ -29,20 +28,18 @@ def parse(cls, api, raw):
 tweepy.models.Status.first_parse = tweepy.models.Status.parse
 tweepy.models.Status.parse = parse
 
-# asking for input for specific hashtag
-
-hashtagSearch = input("Enter in the hashtag you want to Scrape: ")
 counter = 0  # counter to check how many tweets are downloaded so far
-fname = 'tweetScrape.json'
-hashtag = hashtagSearch
-
-# hashtag = '#metoo'
-# attempt to make this as input
+fname = ''
 
 # Stream tweets
+hashtag = '#'
 
 
 class MyListener(StreamListener):
+    hashtagSearch = input("Enter in the hashtag you want to Scrape: ")
+    hashtag += hashtagSearch
+    fname = hashtagSearch + "_raw.json"
+
     print('\nWill print out tweet data to ' + fname + ' under hashtag ' + hashtag + '\n')
 
     def on_data(self, data):
@@ -56,17 +53,14 @@ class MyListener(StreamListener):
                 counter += 1
                 print('Tweet no. ' + str(counter) + ' downloaded\n')
 
+                if (counter == 2):
+                    print('we have reached our limit')
+                    return False
+
                 return True
 
-            with open('out.txt', 'w', encoding='utf-8') as f:
-                csvfile = csv.writer(f)
-                maxsize = 1024                # max file size in bytes
-                for row in data():
-                    csvfile.writerow(row)
-                    if f.tell() > maxsize:    # f.tell() gives byte offset, no need to worry about multiwide chars
-                            break
-
         except BaseException as e:
+            # attempt to make this as input
             print("Error on_data: %s" % str(e))
         return True
 

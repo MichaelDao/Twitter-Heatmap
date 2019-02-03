@@ -18,7 +18,8 @@ from google.cloud import storage
 client = storage.Client(project='abgcorp-vicsafe')
 bucket = client.get_bucket('abgcorp-vicsafe')
 
-uploadData = input("Enter in name of file you want to upload")
+uploadData = input("Save the file as?")
+fileData = input("Enter in name of file you want to upload (local)")
 
 blob = bucket.blob(uploadData + '.csv')
-blob.upload_from_filename('manual.csv')
+blob.upload_from_filename('data/'+ fileData+ '.csv')

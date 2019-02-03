@@ -5,12 +5,15 @@ import csv
 
 # Tweets are stored in in file "fname". In the file used for this script,
 # each tweet was stored on one line
-fname = 'MeTooScrape.json'
-outname = 'MeTooProcessed.json'
+fnameInput = input("Enter Filename of Scrape to Process:")
+outnameInput = input("Saved Processed as:")
+
+fname = 'data/' + fnameInput + '.json'
+outname = 'data/' + outnameInput + '.json'
 geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
 
 # The json  file variable names
-csvName = "meTooDate.csv"
+csvName =   outnameInput + '.csv'
 
 # find geolocation with mapquest
 

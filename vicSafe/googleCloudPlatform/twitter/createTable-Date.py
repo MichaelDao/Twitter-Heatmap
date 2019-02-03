@@ -15,17 +15,17 @@ tableName = input("Enter in the name of the Table you want to create: ")
 
 #Where we define the Schema of the table
 schema = [
-    bigquery.SchemaField('user_id', 'INTEGER', mode='REQUIRED'),
-    bigquery.SchemaField('latitude', 'FLOAT', mode='REQUIRED'),
-    bigquery.SchemaField('tweet_id', 'INTEGER', mode='REQUIRED'),
-    bigquery.SchemaField('longitude', 'FLOAT', mode='REQUIRED'),
+      bigquery.SchemaField('Date', 'STRING', mode='REQUIRED'),
+    # bigquery.SchemaField('user_id', 'INTEGER', mode='REQUIRED'),
+    # bigquery.SchemaField('latitude', 'FLOAT', mode='REQUIRED'),
+    # bigquery.SchemaField('tweet_id', 'INTEGER', mode='REQUIRED'),
+    # bigquery.SchemaField('longitude', 'FLOAT', mode='REQUIRED'),
 ]
 #create table in BigQuery
 table_ref = dataset_ref.table(tableName)
 table = bigquery.Table(table_ref, schema)
 table = client.create_table(table)  # API request
 
-assert table.table_id == 'ImpeachTrump'
 
 # load_job = client.load_table_from_uri(
 #     uri,

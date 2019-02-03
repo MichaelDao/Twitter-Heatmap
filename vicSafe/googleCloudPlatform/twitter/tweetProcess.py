@@ -5,14 +5,15 @@ import csv
 
 # Tweets are stored in in file "fname". In the file used for this script,
 # each tweet was stored on one line
-fname = 'impeachTrumpRaw.json'
-outname = 'impeachTrumpProcessed.json'
+fnameInput = input("Enter Filename of Scrape to Process:")
+outnameInput = input("Saved Processed as:")
+
+fname = 'data/' + fnameInput + '.json'
+outname = 'data/' + outnameInput + '.json'
 geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
 
 # The json  file variable names
-csvName = "ImpeachTrump.csv"
-
-# find geolocation with mapquest
+csvName =  outnameInput + '.csv'
 
 def findGeoFunc(location):
     # get longitutde and latitude with location query
@@ -41,13 +42,13 @@ def prepareCSV(user_data):
         newFile = open(csvName, "w+")
 
         # first line is unfortunately hardcoded header
-        newFile.write("time,user_id,tweet_id,longitude,latitude,favourites\n")
+        newFile.write("user_id,tweet_id,longitude,latitude,favourites\n")
         newFile.close()
         
 
     addLine = open(csvName, 'a')
 
-    tweetCSVLine = user_data['time'] + ',' + str(user_data['user_id']) + ',' + str(user_data['tweet_id']) + \
+    tweetCSVLine = str(user_data['user_id']) + ',' + str(user_data['tweet_id']) + \
         ',' + str(user_data['longitude']) + ',' + str(user_data['latitude']) + ',' + str(user_data['favourites']) + '\n'
 
 
@@ -98,7 +99,7 @@ with open(fname, 'r') as f:
                     # Give users some data to find them by. User_id listed separately
                     # to make iterating this data later easier
                     user_data = {
-                        "time": tweet['created_at'],
+                        # "time": tweet['created_at'],
                         "user_id": tweet['user']['id'],
                         "tweet_id": tweet['id'],
                         "longitude": coord[0],

@@ -21,5 +21,10 @@ bucket = client.get_bucket('abgcorp-vicsafe')
 uploadData = input("Save the file as?")
 fileData = input("Enter in name of file you want to upload (local)")
 
+# You are creating the file into the bucket, with upload data as a name
 blob = bucket.blob(uploadData + '.csv')
+
+# look for the local file that you want to upload
 blob.upload_from_filename('data/'+ fileData+ '.csv')
+
+# GOTO create table location file

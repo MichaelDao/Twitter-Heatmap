@@ -10,7 +10,8 @@ job_config.skip_leading_rows = 1
 #uri = 'gs://abgcorp-vicsafe/ImpeachTrump.csv'
 
 #Ask for Hashtag
-
+# TODO Try catch eror needed
+# TODO combine into same file with uploat DATA
 tableName = input("Enter in the name of the Table you want to create: ")
 
 #Where we define the Schema of the table

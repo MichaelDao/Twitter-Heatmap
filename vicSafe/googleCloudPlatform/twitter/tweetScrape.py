@@ -48,11 +48,16 @@ class MyListener(StreamListener):
                 global counter
                 counter += 1
                 print('Tweet no. ' + str(counter) + ' downloaded\n')
-                if(counter == 10)
-                    break
+
                 return True
 
-           
+            with open('out.txt', 'w', encoding='utf-8') as f:
+                csvfile = csv.writer(f)
+                maxsize = 1024                # max file size in bytes
+                for row in data():
+                    csvfile.writerow(row)
+                        if f.tell() > maxsize:    # f.tell() gives byte offset, no need to worry about multiwide chars
+                            break
 
         except BaseException as e:
             print("Error on_data: %s" % str(e))

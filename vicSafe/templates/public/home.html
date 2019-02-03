@@ -30,7 +30,7 @@ limitations under the License.
       }
       #map {
         height: 100%;
-        margin-top: 30px;
+        margin-top: 50px;
       }
     </style>
 </head>
@@ -46,10 +46,21 @@ limitations under the License.
         </div>
 
     </div>
-    <select id="hashtagDrop">
-            <option value="#MeToo">#MeToo</option>
-            <option value="#ImpeachTrump">#ImpeachTrump</option>
-    </select>
+    
+    <div class="loading">
+            <div class="lds-ripple">
+                <div></div>
+                <div></div>
+            </div>
+    </div>
+
+    <div class="wrapOver">
+            <select id="hashtagDrop">
+                    <option value="#MeToo">#MeToo</option>
+                    <option value="#ImpeachTrump">#ImpeachTrump</option>
+            </select>
+    </div>
+   
     <!-- Credentials -->
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.

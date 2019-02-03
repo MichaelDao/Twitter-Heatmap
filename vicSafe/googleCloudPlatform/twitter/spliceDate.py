@@ -2,7 +2,6 @@
 import json
 import geocoder
 import csv
-import calendar
 
 # Tweets are stored in in file "fname". In the file used for this script,
 # each tweet was stored on one line
@@ -45,13 +44,13 @@ def prepareCSV(user_data):
         newFile = open(csvName, "w+")
 
         # first line is unfortunately hardcoded header
-        newFile.write("month, " + "dayNum, " + "time, " + "year " + "\n")
+        newFile.write("time\n")
         newFile.close()
         
 
     addLine = open(csvName, 'a')
 
-    tweetCSVLine = str(user_data['month']) +", " + str(user_data['dayNum']) +", " + str(user_data['time']) +", " + str(user_data['year']) + '\n'
+    tweetCSVLine = user_data['time'] + '\n'
 
 
     addLine.write(tweetCSVLine)
@@ -99,33 +98,10 @@ with open(fname, 'r') as f:
                     # add this gelocated user to list
                     all_users.append(user_id)
 
-                    # splice time into four categories
-                    array = tweet['created_at']
-
-                    # array = date.split(" ");
-
-                    print(array)
-                    
-                    day, month, dayNum, time, ran, year = array.split()
-
-                    abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
-
-                    hourTime, minuteTime, secTime = time.split(":")
-
-                    intMonth = abbr_to_num[month]
-                    intDayNum = int(dayNum)
-                    intTime = int(hourTime)
-                    intYear = int(year)
-
-
-                    
                     # Give users some data to find them by. User_id listed separately
                     # to make iterating this data later easier
                     user_data = {
-                        "month": intMonth,
-                        "dayNum": intDayNum,
-                        "time": intTime,
-                        "year": intYear,
+                        "time": tweet['created_at'],
                     }
                     prepareCSV(user_data)  # prepare CSV file for saving
 

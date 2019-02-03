@@ -1,158 +1,307 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div id="chart_div"></div>
 <div class="container">
-    <h1 class="mt-5">About</h1>
-    <div class="row">
-        <p class="lead">All our analytic data should go here</p>
-    </div>
+  <h1 class="mt-5">Analytical Data</h1>
+  <div class="row">
+    <p class="lead">Collected Data Processed & Graphed</p>
+  </div>
+  <br>
+</div>
+<div id="barchart_div"></div>
+<div id="dashboard">
+  <br>
+  <div id="chart_div"></div>
+  <div id="range_filter_div"></div>
 </div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <script type="text/javascript">
-    // Client ID for OAuth 2.0 authorization against BigQuery.
-    var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
-    // BigQuery settings. Replace these with your project, dataset and table names.
-    var billingProjectId = 'abgcorp-vicsafe';
-    var publicProjectId = 'bigquery-public-data';
-    var datasetId = 'tweet_hashtag';
-    var tableName = 'metoo';
-    var scopes = 'https://www.googleapis.com/auth/bigquery';
-    var projectId = 'abgcorp-vicsafe';
-    var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
-    // Limit the number of records that a query will return.    var recordLimit = 10000;
-    var recordLimit = 10000;
-    var jobCheckTimer;
-    google.charts.load('current', {
-        packages: ['corechart', 'bar']
+  // Client ID for OAuth 2.0 authorization against BigQuery.
+  var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
+  // BigQuery settings. Replace these with your project, dataset and table names.
+  var billingProjectId = 'abgcorp-vicsafe';
+  var publicProjectId = 'bigquery-public-data';
+  var datasetId = 'tweet_hashtag';
+  var tableName = 'metoo';
+  var scopes = 'https://www.googleapis.com/auth/bigquery';
+  var projectId = 'abgcorp-vicsafe';
+  var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+  // Limit the number of records that a query will return.    var recordLimit = 10000;
+  var recordLimit = 10000;
+  var jobCheckTimer;
+  google.charts.load('current', {
+    packages: ['corechart', 'bar']
+  });
+
+  // Check if the user is authorized.
+  function authorize(event) {
+    gapi.auth.authorize({
+      client_id: clientId,
+      scope: scopes,
+      immediate: false
+    }, handleAuthResult);
+    return false;
+  }
+
+  // If authorized, load BigQuery API
+  function handleAuthResult(authResult) {
+    if (authResult && !authResult.error) {
+      loadApi();
+    } else {
+      console.log(authResult)
+      console.error('Not authorized.')
+    }
+  }
+  // Bar Chart of Top 10 favourite tweets
+  // Load BigQuery client API and then initialize the map.
+  function loadApi() {
+    gapi.client.load('bigquery', 'v2').then(
+      function () {
+        sendQuery("SELECT tweet_id, favourites from tweet_hashtag.annes_time_set GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+      }
+    );
+  }
+
+  // Send a query to BigQuery using the Google Client API for JavaScript.
+  function sendQuery(queryString) {
+    var request = gapi.client.bigquery.jobs.query({
+      'query': queryString,
+      'timeoutMs': 30000,
+      'datasetId': datasetId,
+      'projectId': billingProjectId,
+      'useLegacySql': false,
+      'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
     });
+    request.execute(function (response) {
+      console.log("shenma")
+      console.log(response)
+      checkJobStatus(response.jobReference.jobId);
+    });
+  }
 
-    // Check if the user is authorized.
-    function authorize(event) {
-        gapi.auth.authorize({
-            client_id: clientId,
-            scope: scopes,
-            immediate: false
-        }, handleAuthResult);
-        return false;
-    }
-
-    // If authorized, load BigQuery API
-    function handleAuthResult(authResult) {
-        if (authResult && !authResult.error) {
-            loadApi();
+  // Poll a job to see if it has finished executing.
+  function checkJobStatus(jobId) {
+    var request = gapi.client.bigquery.jobs.get({
+      'projectId': billingProjectId,
+      'jobId': jobId
+    });
+    request.execute(function (response) {
+      if (response.status.errorResult) {
+        // Handle any errors
+        console.log(response.status.error);
+      } else {
+        if (response.status.state == 'DONE') {
+          // Get the results
+          clearTimeout(jobCheckTimer);
+          getQueryResults(jobId);
         } else {
-            console.log(authResult)
-            console.error('Not authorized.')
+          // Not finished, check again in a moment
+          jobCheckTimer = setTimeout(checkJobStatus, 500, [jobId]);
         }
+      }
+    });
+  }
+
+  // When a BigQuery job has completed, fetch the results.
+  function getQueryResults(jobId) {
+    var request = gapi.client.bigquery.jobs.getQueryResults({
+      'projectId': billingProjectId,
+      'jobId': jobId
+    });
+    request.execute(function (response) {
+      topTweets(response.result.rows);
+    })
+  }
+  var tweetID = [];
+  var tweetFavs = [];
+
+  // Show query results.
+  function topTweets(rows) {
+
+    for (var i = 0; i < rows.length; i++) {
+      var f = rows[i].f;
+      tweetID.push(f[0].v);
+      tweetFavs.push(parseInt(f[1].v));
     }
-
-    // Load BigQuery client API and then initialize the map.
-    function loadApi() {
-        gapi.client.load('bigquery', 'v2').then(
-            function() {
-                sendQuery("SELECT tweet_id, favourites from tweet_hashtag.annes_time_set GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
-            }
-        );
-    }
-
-    // Send a query to BigQuery using the Google Client API for JavaScript.
-    function sendQuery(queryString) {
-        var request = gapi.client.bigquery.jobs.query({
-            'query': queryString,
-            'timeoutMs': 30000,
-            'datasetId': datasetId,
-            'projectId': billingProjectId,
-            'useLegacySql': false,
-            'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
-        });
-        request.execute(function(response) {
-            console.log("shenma")
-            console.log(response)
-            checkJobStatus(response.jobReference.jobId);
-        });
-    }
-
-    // Poll a job to see if it has finished executing.
-    function checkJobStatus(jobId) {
-        var request = gapi.client.bigquery.jobs.get({
-            'projectId': billingProjectId,
-            'jobId': jobId
-        });
-        request.execute(function(response) {
-            if (response.status.errorResult) {
-                // Handle any errors
-                console.log(response.status.error);
-            } else {
-                if (response.status.state == 'DONE') {
-                    // Get the results
-                    clearTimeout(jobCheckTimer);
-                    getQueryResults(jobId);
-                } else {
-                    // Not finished, check again in a moment
-                    jobCheckTimer = setTimeout(checkJobStatus, 500, [jobId]);
-                }
-            }
-        });
-    }
-
-    // When a BigQuery job has completed, fetch the results.
-    function getQueryResults(jobId) {
-        var request = gapi.client.bigquery.jobs.getQueryResults({
-            'projectId': billingProjectId,
-            'jobId': jobId
-        });
-        request.execute(function(response) {
-            topTweets(response.result.rows);
-        })
-    }
-    var tweetID = [];
-    var tweetFavs = [];
-
-    // Show query results.
-    function topTweets(rows) {
-
-        for (var i = 0; i < rows.length; i++) {
-            var f = rows[i].f;
-            tweetID.push(f[0].v);
-            tweetFavs.push(parseInt(f[1].v));
-        }
-        drawMultSeries();
-    }
+    drawMultSeries();
+  }
 
 
-    function drawMultSeries() {
+  function drawMultSeries() {
 
-        var data = google.visualization.arrayToDataTable([
-            ['id', 'favourites', { role: 'style' }],
-            [tweetID[0], tweetFavs[0], '#00aced'],
+    var data = google.visualization.arrayToDataTable([
+      ['id', 'Favourites', { role: 'style' }],
+      [tweetID[0], tweetFavs[0], '#00aced'],
 
-        ]);
-        for (var i = 1; i < tweetID.length; i++)
-            data.addRows([
-                [tweetID[i], tweetFavs[i]]
-            ])
-        var options = {
-            title: 'most liked tweets',
+    ]);
+    for (var i = 1; i < tweetID.length; i++)
+      data.addRows([
+        [tweetID[i], tweetFavs[i], '#00aced']
+      ])
+    var options = {
+      title: 'Most Liked Tweets',
+      chartArea: {
+        width: '50%'
+      },
+      hAxis: {
+        title: 'Likes Amount',
+        minValue: 0
+      },
+      vAxis: {
+        title: 'Tweet ID'
+      }
+    };
+    var chart = new google.visualization.BarChart(document.getElementById('barchart_div'));
+    chart.draw(data, options);
+  }
+
+  //Line graph for how many tweets sent out every hour
+  google.load('visualization', '1', { packages: ['controls'] });
+  google.setOnLoadCallback(drawChart);
+
+  function drawChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', 'Date');
+    data.addColumn('number', ' ');
+
+    data.addRows([
+      // change strings to Dates (year, month), where months are zero-indexed
+      [new Date(2019, 0, 30, 22, null, null), 2],
+      [new Date(2019, 0, 30, 20, null, null), 5],
+      [new Date(2019, 0, 30, 18, null, null), 3],
+      [new Date(2019, 0, 30, 16, null, null), 3],
+      [new Date(2019, 0, 30, 14, null, null), 12],
+      [new Date(2019, 0, 30, 12, null, null), 10],
+      [new Date(2019, 0, 30, 10, null, null), 9],
+      [new Date(2019, 0, 30, 8, null, null), 10],
+      [new Date(2019, 0, 30, 6, null, null), 8],
+      [new Date(2019, 0, 30, 4, null, null), 8],
+      [new Date(2019, 0, 30, 2, null, null), 6],
+      [new Date(2019, 0, 30, 0, null, null), 6],
+      [new Date(2019, 0, 29, 22, null, null), 2],
+      [new Date(2019, 0, 29, 20, null, null), 5],
+      [new Date(2019, 0, 29, 18, null, null), 3],
+      [new Date(2019, 0, 29, 16, null, null), 3],
+      [new Date(2019, 0, 29, 14, null, null), 12],
+      [new Date(2019, 0, 29, 12, null, null), 10],
+      [new Date(2019, 0, 29, 10, null, null), 9],
+      [new Date(2019, 0, 29, 8, null, null), 10],
+      [new Date(2019, 0, 29, 6, null, null), 8],
+      [new Date(2019, 0, 29, 4, null, null), 8],
+      [new Date(2019, 0, 29, 2, null, null), 6],
+      [new Date(2019, 0, 29, 0, null, null), 6],
+      [new Date(2019, 0, 28, 22, null, null), 2],
+      [new Date(2019, 0, 28, 20, null, null), 5],
+      [new Date(2019, 0, 28, 18, null, null), 3],
+      [new Date(2019, 0, 28, 16, null, null), 5],
+      [new Date(2019, 0, 28, 14, null, null), 2],
+      [new Date(2019, 0, 28, 12, null, null), 5],
+      [new Date(2019, 0, 28, 10, null, null), 3],
+      [new Date(2019, 0, 28, 8, null, null), 3],
+      [new Date(2019, 0, 28, 6, null, null), 12],
+      [new Date(2019, 0, 28, 4, null, null), 10],
+      [new Date(2019, 0, 28, 2, null, null), 9],
+      [new Date(2019, 0, 28, 0, null, null), 5],
+      [new Date(2019, 0, 27, 22, null, null), 2],
+      [new Date(2019, 0, 27, 20, null, null), 5],
+      [new Date(2019, 0, 27, 18, null, null), 3],
+      [new Date(2019, 0, 27, 16, null, null), 3],
+      [new Date(2019, 0, 27, 14, null, null), 12],
+      [new Date(2019, 0, 27, 12, null, null), 10],
+      [new Date(2019, 0, 27, 10, null, null), 9],
+      [new Date(2019, 0, 27, 8, null, null), 10],
+      [new Date(2019, 0, 27, 6, null, null), 8],
+      [new Date(2019, 0, 27, 4, null, null), 8],
+      [new Date(2019, 0, 27, 2, null, null), 6],
+      [new Date(2019, 0, 27, 0, null, null), 6]
+    ]);
+
+    var dateFormat = new google.visualization.DateFormat({ pattern: 'EEE d, hh a' });
+    dateFormat.format(data, 0);
+
+    var rangeFilter = new google.visualization.ControlWrapper({
+      controlType: 'ChartRangeFilter',
+      containerId: 'range_filter_div',
+      options: {
+        filterColumnIndex: 0,
+        ui: {
+          chartOptions: {
+            height: 50,
+            width: 1500, // must be the same in both the chart and the control
             chartArea: {
-                width: '50%'
+              width: '70%' // must be the same in both the chart and the control
             },
             hAxis: {
-                title: 'likes amount',
-                minValue: 0
-            },
-            vAxis: {
-                title: 'tweet id'
+              format: 'EEE d, hh a'
             }
-        };
-        var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
-    }
+          },
+          chartView: {
+            columns: [0, 1]
+          }
+        }
+      },
+      state: {
+        range: {
+          start: new Date(2019, 0, 27, 0, null, null),
+          end: new Date(2019, 0, 30, 23, null, null)
+        }
+      }
+    });
+
+    var chart = new google.visualization.ChartWrapper({
+      chartType: 'LineChart',
+      containerId: 'chart_div',
+      options: {
+        // width and chartArea.width should be the same for the filter and chart
+        chartArea: {
+          width: '70%', // must be the same in both the chart and the control
+          height: '50%'
+        },
+        width: 1500, // must be the same in both the chart and the control
+        height: 300,
+        fontName: ["Arial"],
+        colors: ['#29ab87'],
+        curveType: ['none'],
+        fontSize: ['13'],
+        hAxis: {
+          title: 'Period',
+          titleTextStyle: {
+            italic: false,
+            color: 'black',
+            fontSize: 15
+          },
+          format: 'EEE d, hh a'
+        },
+        legend: {
+          position: 'right',
+          textStyle: {
+            color: 'black',
+            fontSize: 12
+          }
+        },
+        lineWidth: 2,
+        pointSize: 7,
+        tooltip: {
+          textStyle: {
+            color: 'Black'
+          },
+          showColorCode: false
+        }
+      }
+    });
+
+    // Create the dashboard
+    var dash = new google.visualization.Dashboard(document.getElementById('dashboard'));
+    // bind the chart to the filter
+    dash.bind([rangeFilter], [chart]);
+    // draw the dashboard
+    dash.draw(data);
+  }
 
 </script>
 <script src="https://apis.google.com/js/client.js"></script>
 <script type="text/javascript">
-    gapi.load('client:auth', authorize);
+  gapi.load('client:auth', authorize);
 </script>
 {% endblock %}

@@ -1,12 +1,27 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div id="chart_div"></div>
 <div class="container">
-    <h1 class="mt-5">About</h1>
+    <h1 class="mt-5">Analytical Data</h1>
     <div class="row">
-        <p class="lead">All our analytic data should go here</p>
     </div>
+    <br>
+</div>
+<div class="wrapOver">
+    <select id="hashtagDrop">
+        <option value="#MeToo">#MeToo</option>
+        <option value="#ImpeachTrump">#ImpeachTrump</option>
+    </select>
+</div>
+<div id="dashboard">
+    <div id="barchart_div"></div>
+    <container id="twitterContainer">
+
+
+    </container>
+    <br>
+    <div id="chart_div"></div>
+    <div id="range_filter_div"></div>
 </div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -18,29 +33,46 @@
     var publicProjectId = 'bigquery-public-data';
     var datasetId = 'tweet_hashtag';
     var tableName = 'annes_time_set';
+    var tableName2 = "MeTooDate";
     var scopes = 'https://www.googleapis.com/auth/bigquery';
     var projectId = 'abgcorp-vicsafe';
     var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+    var jobId2 = "abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e";
     // Limit the number of records that a query will return.    var recordLimit = 10000;
     var recordLimit = 10000;
     var jobCheckTimer;
-    
+    var tweetID = [];
+    var tweetFavs = [];
+
+    var tempStorage = [];
     document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
-        function hashtagSelector(e) {
-            var hashtag = e.target.value;
-            if (hashtag == "#MeToo") {
-                // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
-                tableName = 'annes_time_set';
+    function hashtagSelector(e) {
+        var hashtag = e.target.value;
+        if (hashtag == "#MeToo") {
+            // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+            tableName = 'annes_time_set';
+            tableName2 = "MeTooDate";
+            for (var i = 0; i < 5; i++) {
+                var element = document.getElementById("tweet"+i);
+                element.parentNode.removeChild(element);
             }
-            else if (hashtag == "#ImpeachTrump"){
-                // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
-                tableName = 'ImpeachTrump';
-            }
- 
 
-            loadApi();
         }
+        else if (hashtag == "#ImpeachTrump") {
+            // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
+            tableName = 'ImpeachTrump';
+            tableName2 = "ImpeachTrumpDate";
+            for (var i = 0; i < 5; i++) {
+                var element = document.getElementById("tweet"+i);
+                element.parentNode.removeChild(element);
+            }
+        }
+        tweetID = [];
+        tweetFavs = [];
+        tempStorage = [];
+        loadApi();
+    }
     google.charts.load('current', {
         packages: ['corechart', 'bar']
     });
@@ -64,13 +96,14 @@
             console.error('Not authorized.')
         }
     }
-
+    // Bar Chart of Top 10 favourite tweets
     // Load BigQuery client API and then initialize the map.
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
-            function() {
-                 //sendQuery("SELECT tweet_id, favourites from tweet_hashtag."+tableName+" GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
-                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName);
+            function () {
+                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 5");
+                sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag." + tableName2 + " GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
+
             }
         );
     }
@@ -83,12 +116,28 @@
             'datasetId': datasetId,
             'projectId': billingProjectId,
             'useLegacySql': false,
-            'jobId': jobId
+            'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
         });
-        request.execute(function(response) {
-            console.log("shenma")
+        request.execute(function (response) {
+            console.log("shenma1")
             console.log(response)
             checkJobStatus(response.jobReference.jobId);
+        });
+    }
+
+    function sendQuery2(queryString) {
+        var request = gapi.client.bigquery.jobs.query({
+            'query': queryString,
+            'timeoutMs': 30000,
+            'datasetId': datasetId,
+            'projectId': billingProjectId,
+            'useLegacySql': false,
+            'jobId': 'abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e'
+        });
+        request.execute(function (response) {
+            console.log("shenma2")
+            console.log(response)
+            checkJobStatus2(response.jobReference.jobId);
         });
     }
 
@@ -98,7 +147,7 @@
             'projectId': billingProjectId,
             'jobId': jobId
         });
-        request.execute(function(response) {
+        request.execute(function (response) {
             if (response.status.errorResult) {
                 // Handle any errors
                 console.log(response.status.error);
@@ -115,18 +164,56 @@
         });
     }
 
+    function checkJobStatus2(jobId) {
+        var request = gapi.client.bigquery.jobs.get({
+            'projectId': billingProjectId,
+            'jobId': jobId
+        });
+        request.execute(function (response) {
+            if (response.status.errorResult) {
+                // Handle any errors
+                console.log(response.status.error);
+            } else {
+                if (response.status.state == 'DONE') {
+                    // Get the results
+                    clearTimeout(jobCheckTimer);
+                    getQueryResults2(jobId);
+                } else {
+                    // Not finished, check again in a moment
+                    jobCheckTimer = setTimeout(checkJobStatus, 500, [jobId]);
+                }
+            }
+        });
+    }
+
+
     // When a BigQuery job has completed, fetch the results.
     function getQueryResults(jobId) {
         var request = gapi.client.bigquery.jobs.getQueryResults({
             'projectId': billingProjectId,
             'jobId': jobId
         });
-        request.execute(function(response) {
+        request.execute(function (response) {
             topTweets(response.result.rows);
         })
     }
-    var tweetID = [];
-    var tweetFavs = [];
+
+    function getQueryResults2(jobId) {
+        var request = gapi.client.bigquery.jobs.getQueryResults({
+            'projectId': billingProjectId,
+            'jobId': jobId
+        });
+        request.execute(function (response) {
+            // topTweets(response.result.rows);
+            tempStorage = response.result.rows;
+            drawChart();
+
+
+
+        })
+    }
+
+
 
     // Show query results.
     function topTweets(rows) {
@@ -135,38 +222,172 @@
             var f = rows[i].f;
             tweetID.push(f[0].v);
             tweetFavs.push(parseInt(f[1].v));
-          
         }
         drawMultSeries();
     }
 
-
     function drawMultSeries() {
 
+
         var data = google.visualization.arrayToDataTable([
-            ['id', 'favourites', { role: 'style' }],
-            [tweetID[0], tweetFavs[0], '#00aced'],
+            ['id', 'Favourites', { role: 'style' }],
+            ["Tweet 1", tweetFavs[0], '#00aced'],
 
         ]);
-        for (var i = 1; i < tweetID.length; i++)
+        var newTweet = document.createElement("iframe");
+        newTweet.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[0]);
+        newTweet.setAttribute("height", "500");
+        newTweet.setAttribute("width", "40%");
+        newTweet.setAttribute("id", "tweet0");
+        newTweet.style="max-width: 450px;align-self: center;";
+
+        // add the newly created element and its content into the DOM 
+        document.getElementById("twitterContainer").appendChild(newTweet);
+
+        for (var i = 1; i < tweetID.length; i++) {
             data.addRows([
-                [tweetID[i], tweetFavs[i], '#00aced']
+                ["Tweet " + (i + 1), tweetFavs[i], '#00aced']
             ])
+            console.log(tweetID[i]);
+
+            // create a new div element 
+            var newTweet2 = document.createElement("iframe");
+            newTweet2.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[i]);
+            newTweet2.setAttribute("height", "500");
+            newTweet2.setAttribute("width", "40%");
+            newTweet2.setAttribute("id", "tweet" + i);
+            newTweet2.style="max-width: 450px;align-self: center;";
+
+            // add the newly created element and its content into the DOM 
+            document.getElementById("twitterContainer").appendChild(newTweet2);
+
+        }
         var options = {
-            title: 'most liked tweets',
+            title: 'Most Liked Tweets',
             chartArea: {
                 width: '50%'
             },
             hAxis: {
-                title: 'likes amount',
+                title: 'Likes Amount',
                 minValue: 0
             },
             vAxis: {
-                title: 'tweet id'
+                title: 'Tweet ID',
+                textStyle: {
+                    fontSize: 10 // or the number you want
+                }
             }
         };
-        var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+        var chart = new google.visualization.BarChart(document.getElementById('barchart_div'));
         chart.draw(data, options);
+    }
+
+    //Line graph for how many tweets sent out every hour
+    google.load('visualization', '1', { packages: ['controls'] });
+    google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Date');
+        data.addColumn('number', ' ');
+
+        var testStorage = []
+
+        for (i = 0; i < tempStorage.length; i++) {
+            var item = tempStorage[i]
+            console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
+
+            testStorage.push([new Date(item.f[0].v, item.f[1].v - 1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
+        }
+
+        console.log("hiashdihasidhiash")
+        console.log(testStorage)
+        data.addRows(
+            testStorage
+        );
+
+
+
+        var dateFormat = new google.visualization.DateFormat({ pattern: 'EEE d, hh a' });
+        dateFormat.format(data, 0);
+
+        var rangeFilter = new google.visualization.ControlWrapper({
+            controlType: 'ChartRangeFilter',
+            containerId: 'range_filter_div',
+            options: {
+                filterColumnIndex: 0,
+                ui: {
+                    chartOptions: {
+                        height: 50,
+                        width: "80%", // must be the same in both the chart and the control
+                        chartArea: {
+                            width: 1000 // must be the same in both the chart and the control
+                        },
+                        hAxis: {
+                            format: 'EEE d, hh a'
+                        }
+                    },
+                    chartView: {
+                        columns: [0, 1]
+                    }
+                }
+            },
+            state: {
+                range: {
+                    start: new Date(2019, 0, 28, 6, null, null),
+                    end: new Date(2019, 1, 1, 23, null, null)
+                }
+            }
+        });
+
+        var chart = new google.visualization.ChartWrapper({
+            chartType: 'LineChart',
+            containerId: 'chart_div',
+            options: {
+                // width and chartArea.width should be the same for the filter and chart
+                chartArea: {
+                    width: '70%', // must be the same in both the chart and the control
+                    height: '50%'
+                },
+                width: "80%", // must be the same in both the chart and the control
+                height: 300,
+                fontName: ["Arial"],
+                colors: ['#29ab87'],
+                curveType: ['none'],
+                fontSize: ['13'],
+                hAxis: {
+                    title: 'Period',
+                    titleTextStyle: {
+                        italic: false,
+                        color: 'black',
+                        fontSize: 15
+                    },
+                    format: 'EEE d, hh a'
+                },
+                legend: {
+                    position: 'right',
+                    textStyle: {
+                        color: 'black',
+                        fontSize: 12
+                    }
+                },
+                lineWidth: 2,
+                pointSize: 7,
+                tooltip: {
+                    textStyle: {
+                        color: 'Black'
+                    },
+                    showColorCode: false
+                }
+            }
+        });
+
+        // Create the dashboard
+        var dash = new google.visualization.Dashboard(document.getElementById('dashboard'));
+        // bind the chart to the filter
+        dash.bind([rangeFilter], [chart]);
+        // draw the dashboard
+        dash.draw(data);
     }
 
 </script>

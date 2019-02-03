@@ -24,6 +24,22 @@
     // Limit the number of records that a query will return.    var recordLimit = 10000;
     var recordLimit = 10000;
     var jobCheckTimer;
+    
+    document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
+
+        function hashtagSelector(e) {
+            var hashtag = e.target.value;
+            if (hashtag == "#MeToo") {
+                jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+                tableName = 'bigger_metoo';
+
+
+            } else {
+                jobId = 'abgcorp-vicsafe:US.bquxjob_46fb8942_168adf83d17';
+                tableName = 'ImpeachTrump';
+            }
+            initMap();
+        }
     google.charts.load('current', {
         packages: ['corechart', 'bar']
     });
@@ -53,6 +69,7 @@
         gapi.client.load('bigquery', 'v2').then(
             function() {
                 sendQuery("SELECT tweet_id, favourites from tweet_hashtag.annes_time_set GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+                 sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag." + tableName);
             }
         );
     }

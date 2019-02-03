@@ -15,11 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <html>
+
 <head>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
+
     <!-- Inline css -->
     <style>
         html, body {
@@ -35,20 +36,21 @@ limitations under the License.
 
 <body>
     <div class="menu">
-            <div class="heat">
-    
-            </div>
-    
-            <div class="dot">
-    
-            </div>
-    
+        <div class="heat">
+
+        </div>
+
+        <div class="dot">
+
+        </div>
+
     </div>
     <!-- Credentials -->
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.
         var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
-
+        
+        //change tablename, jobid
         // BigQuery settings. Replace these with your project, dataset and table names.
         var billingProjectId = 'abgcorp-vicsafe';
         var publicProjectId = 'bigquery-public-data';
@@ -69,10 +71,26 @@ limitations under the License.
         var locations = [];
 
         var dot_on = true;
+        document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
+
+//Change which the database to 
+        function hashtagSelector(e) {
+            var hashtag = e.target.value;
+            if (hashtag == "#MeToo") {
+                jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+                tableName = 'bigger_metoo';
+
+
+            } else {
+                jobId = 'abgcorp-vicsafe:US.bquxjob_46fb8942_168adf83d17';
+                tableName = 'ImpeachTrump';
+            }
+            initMap();
+        }
         // Check if the user is authorized.
         function toggleHeat(opt) {
             // if toggle the heat map
-            if(opt != 1) {
+            if (opt != 1) {
                 dot_on = true;
                 initMap()
                 // doHeatMap(response_d);
@@ -83,8 +101,13 @@ limitations under the License.
 
             }
         }
-        document.querySelector(".heat").addEventListener("click", () => {toggleHeat(1)}, false);
-        document.querySelector(".dot").addEventListener("click", () => {toggleHeat(0)}, false);
+
+        document.querySelector(".heat").addEventListener("click", () => {
+            toggleHeat(1)
+        }, false);
+        document.querySelector(".dot").addEventListener("click", () => {
+            toggleHeat(0)
+        }, false);
 
         function authorize(event) {
             gapi.auth.authorize({
@@ -107,7 +130,7 @@ limitations under the License.
         // Load BigQuery client API and then initialize the map.
         function loadApi() {
             gapi.client.load('bigquery', 'v2').then(
-                function () {
+                function() {
                     initMap();
                 }
             );
@@ -121,9 +144,9 @@ limitations under the License.
                 'datasetId': datasetId,
                 'projectId': billingProjectId,
                 'useLegacySql': false,
-                'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
+                'jobId': jobId
             });
-            request.execute(function (response) {
+            request.execute(function(response) {
                 console.log(response)
                 checkJobStatus(response.jobReference.jobId);
             });
@@ -135,7 +158,7 @@ limitations under the License.
                 'projectId': billingProjectId,
                 'jobId': jobId
             });
-            request.execute(function (response) {
+            request.execute(function(response) {
                 if (response.status.errorResult) {
                     // Handle any errors
                     console.log(response.status.error);
@@ -158,7 +181,7 @@ limitations under the License.
                 'projectId': billingProjectId,
                 'jobId': jobId
             });
-            request.execute(function (response) {
+            request.execute(function(response) {
                 response_d = response.result.rows;
                 doHeatMap(response.result.rows);
             })
@@ -173,10 +196,13 @@ limitations under the License.
                 }, // Manhattan, New York.
                 zoom: 4
             });
-            sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag.bigger_metoo");
+            
+            sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag." + tableName);
+            
+            
             locations = []
-       
-           
+
+
         }
 
 
@@ -218,7 +244,7 @@ limitations under the License.
                 // radius: 20,
             });
             var markerCluster, markers;
-            if(dot_on) {
+            if (dot_on) {
                 markers = locations.map(function(location, i) {
                     var marker = new google.maps.Marker({
                         position: location,
@@ -227,41 +253,40 @@ limitations under the License.
                         // label: "Click to show"
                     });
                     marker.addListener("click", () => {
-                        infowindow.setContent("<iframe border=0 frameborder=0 height=500 width=auto src='https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fjack%2Fstatus%2F" + tweetids[i] + "'></iframe>")
+                        infowindow.setContent("<iframe border=0 frameborder=0 height=500 width=auto src='https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetids[i] + "'></iframe>")
                         // infowindow.setContent( "<div id='tweet' tweetID='" + tweetids[i] +"'>"+tweetids[i]+"</div>");
-                        infowindow.open(map,marker);
+                        infowindow.open(map, marker);
                     });
                     return marker
                 });
 
                 heatmap.setMap(null);
-                markerCluster = new MarkerClusterer(map, markers,
-                {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+                markerCluster = new MarkerClusterer(map, markers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
             } else {
-                for(let i = 0; i < markers.length; i++) {
+                for (let i = 0; i < markers.length; i++) {
                     markers[i].setMap(null);
                     markers[i].removeEventListener("click");
                     markers.shift();
                 }
                 heatmap.setMap(map);
-            
+
             }
 
-           
-   
+
+
         }
 
-       
     </script>
 
-    
+
     <div id="map"></div>
-    
+
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
     <!-- heatmap -->
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
-        async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc" async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>
     <script sync src="https://platform.twitter.com/widgets.js"></script>
 

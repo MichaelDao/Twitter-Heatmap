@@ -17,7 +17,7 @@
     var billingProjectId = 'abgcorp-vicsafe';
     var publicProjectId = 'bigquery-public-data';
     var datasetId = 'tweet_hashtag';
-    var tableName = 'metoo';
+    var tableName = 'annes_time_set';
     var scopes = 'https://www.googleapis.com/auth/bigquery';
     var projectId = 'abgcorp-vicsafe';
     var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
@@ -30,15 +30,16 @@
         function hashtagSelector(e) {
             var hashtag = e.target.value;
             if (hashtag == "#MeToo") {
-                jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
-                tableName = 'bigger_metoo';
-
-
-            } else {
-                jobId = 'abgcorp-vicsafe:US.bquxjob_46fb8942_168adf83d17';
+                // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+                tableName = 'annes_time_set';
+            }
+            else if (hashtag == "#ImpeachTrump"){
+                // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
                 tableName = 'ImpeachTrump';
             }
-            initMap();
+ 
+
+            loadApi();
         }
     google.charts.load('current', {
         packages: ['corechart', 'bar']
@@ -68,8 +69,8 @@
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
             function() {
-                sendQuery("SELECT tweet_id, favourites from tweet_hashtag.annes_time_set GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
-                 sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag." + tableName);
+                 //sendQuery("SELECT tweet_id, favourites from tweet_hashtag."+tableName+" GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName);
             }
         );
     }
@@ -82,7 +83,7 @@
             'datasetId': datasetId,
             'projectId': billingProjectId,
             'useLegacySql': false,
-            'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
+            'jobId': jobId
         });
         request.execute(function(response) {
             console.log("shenma")
@@ -134,6 +135,7 @@
             var f = rows[i].f;
             tweetID.push(f[0].v);
             tweetFavs.push(parseInt(f[1].v));
+          
         }
         drawMultSeries();
     }
@@ -148,7 +150,7 @@
         ]);
         for (var i = 1; i < tweetID.length; i++)
             data.addRows([
-                [tweetID[i], tweetFavs[i]]
+                [tweetID[i], tweetFavs[i], '#00aced']
             ])
         var options = {
             title: 'most liked tweets',

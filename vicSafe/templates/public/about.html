@@ -14,8 +14,11 @@
     </select>
 </div>
 <div id="dashboard">
-        <div id="barchart_div"></div>
+    <div id="barchart_div"></div>
+    <container id="twitterContainer">
 
+
+    </container>
     <br>
     <div id="chart_div"></div>
     <div id="range_filter_div"></div>
@@ -41,7 +44,7 @@
     var tweetID = [];
     var tweetFavs = [];
 
-    var tempStorage = [];    
+    var tempStorage = [];
     document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
     function hashtagSelector(e) {
@@ -50,12 +53,20 @@
             // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
             tableName = 'annes_time_set';
             tableName2 = "MeTooDate";
+            for (var i = 0; i < 5; i++) {
+                var element = document.getElementById("tweet"+i);
+                element.parentNode.removeChild(element);
+            }
 
         }
         else if (hashtag == "#ImpeachTrump") {
             // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
             tableName = 'ImpeachTrump';
             tableName2 = "ImpeachTrumpDate";
+            for (var i = 0; i < 5; i++) {
+                var element = document.getElementById("tweet"+i);
+                element.parentNode.removeChild(element);
+            }
         }
         tweetID = [];
         tweetFavs = [];
@@ -90,7 +101,7 @@
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
             function () {
-                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 5");
                 sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag." + tableName2 + " GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
 
             }
@@ -215,18 +226,42 @@
         drawMultSeries();
     }
 
-
     function drawMultSeries() {
+
 
         var data = google.visualization.arrayToDataTable([
             ['id', 'Favourites', { role: 'style' }],
-            [tweetID[0], tweetFavs[0], '#00aced'],
+            ["Tweet 1", tweetFavs[0], '#00aced'],
 
         ]);
-        for (var i = 1; i < tweetID.length; i++)
+        var newTweet = document.createElement("iframe");
+        newTweet.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[0]);
+        newTweet.setAttribute("height", "500");
+        newTweet.setAttribute("width", "40%");
+        newTweet.setAttribute("id", "tweet0");
+        newTweet.style="max-width: 450px;align-self: center;";
+
+        // add the newly created element and its content into the DOM 
+        document.getElementById("twitterContainer").appendChild(newTweet);
+
+        for (var i = 1; i < tweetID.length; i++) {
             data.addRows([
-                [tweetID[i], tweetFavs[i], '#00aced']
+                ["Tweet " + (i + 1), tweetFavs[i], '#00aced']
             ])
+            console.log(tweetID[i]);
+
+            // create a new div element 
+            var newTweet2 = document.createElement("iframe");
+            newTweet2.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[i]);
+            newTweet2.setAttribute("height", "500");
+            newTweet2.setAttribute("width", "40%");
+            newTweet2.setAttribute("id", "tweet" + i);
+            newTweet2.style="max-width: 450px;align-self: center;";
+
+            // add the newly created element and its content into the DOM 
+            document.getElementById("twitterContainer").appendChild(newTweet2);
+
+        }
         var options = {
             title: 'Most Liked Tweets',
             chartArea: {
@@ -237,7 +272,10 @@
                 minValue: 0
             },
             vAxis: {
-                title: 'Tweet ID'
+                title: 'Tweet ID',
+                textStyle: {
+                    fontSize: 10 // or the number you want
+                }
             }
         };
         var chart = new google.visualization.BarChart(document.getElementById('barchart_div'));
@@ -254,12 +292,12 @@
         data.addColumn('number', ' ');
 
         var testStorage = []
-        
-        for(i = 0; i <  tempStorage.length; i ++) {
+
+        for (i = 0; i < tempStorage.length; i++) {
             var item = tempStorage[i]
             console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
 
-            testStorage.push([new Date(item.f[0].v, item.f[1].v-1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
+            testStorage.push([new Date(item.f[0].v, item.f[1].v - 1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
         }
 
         console.log("hiashdihasidhiash")
@@ -267,8 +305,8 @@
         data.addRows(
             testStorage
         );
-        
-       
+
+
 
         var dateFormat = new google.visualization.DateFormat({ pattern: 'EEE d, hh a' });
         dateFormat.format(data, 0);
@@ -281,7 +319,7 @@
                 ui: {
                     chartOptions: {
                         height: 50,
-                        width: 1500, // must be the same in both the chart and the control
+                        width: "80%", // must be the same in both the chart and the control
                         chartArea: {
                             width: 1000 // must be the same in both the chart and the control
                         },
@@ -296,7 +334,7 @@
             },
             state: {
                 range: {
-                    start: new Date(2019, 0, 2, 0, null, null),
+                    start: new Date(2019, 0, 28, 6, null, null),
                     end: new Date(2019, 1, 1, 23, null, null)
                 }
             }
@@ -311,7 +349,7 @@
                     width: '70%', // must be the same in both the chart and the control
                     height: '50%'
                 },
-                width: 1500, // must be the same in both the chart and the control
+                width: "80%", // must be the same in both the chart and the control
                 height: 300,
                 fontName: ["Arial"],
                 colors: ['#29ab87'],

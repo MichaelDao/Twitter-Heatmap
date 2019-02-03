@@ -30,6 +30,7 @@ limitations under the License.
       }
       #map {
         height: 100%;
+        margin-top: 50px;
       }
     </style>
 </head>
@@ -45,6 +46,21 @@ limitations under the License.
         </div>
 
     </div>
+
+    <div class="loading">
+            <div class="lds-ripple">
+                <div></div>
+                <div></div>
+            </div>
+    </div>
+
+    <div class="wrapOver">
+            <select id="hashtagDrop">
+                    <option value="#MeToo">#MeToo</option>
+                    <option value="#ImpeachTrump">#ImpeachTrump</option>
+            </select>
+    </div>
+   
     <!-- Credentials -->
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.
@@ -69,10 +85,18 @@ limitations under the License.
         var drawingManager;
         var heatmap;
         var locations = [];
-
+    
         var dot_on = true;
+        var loading = false;
         document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
-
+        function getloading(status) {
+            const load = document.querySelector('.loading');
+            if(status == false) {
+                load.style.display = "none";
+            } else { 
+                load.style.display = "block"
+            }
+        }
 //Change which the database to 
         function hashtagSelector(e) {
             var hashtag = e.target.value;
@@ -189,6 +213,8 @@ limitations under the License.
 
         // Map-related functions.
         function initMap() {
+            loading = true;
+            getloading(loading);
             map = new google.maps.Map(document.getElementById('map'), {
                 center: {
                     lat: 40.744593,
@@ -201,6 +227,7 @@ limitations under the License.
             
             
             locations = []
+
 
 
         }
@@ -273,7 +300,8 @@ limitations under the License.
                 heatmap.setMap(map);
 
             }
-
+            loading = false;
+            getloading(loading);
 
 
         }

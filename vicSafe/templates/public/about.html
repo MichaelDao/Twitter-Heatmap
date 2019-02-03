@@ -29,16 +29,18 @@
     var publicProjectId = 'bigquery-public-data';
     var datasetId = 'tweet_hashtag';
     var tableName = 'annes_time_set';
+    var tableName2 = "MeTooDate";
     var scopes = 'https://www.googleapis.com/auth/bigquery';
     var projectId = 'abgcorp-vicsafe';
     var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+    var jobId2 = "abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e";
     // Limit the number of records that a query will return.    var recordLimit = 10000;
     var recordLimit = 10000;
     var jobCheckTimer;
     var tweetID = [];
     var tweetFavs = [];
 
-    var tempStorage = [];
+    var tempStorage = [];    
     document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
     function hashtagSelector(e) {
@@ -46,15 +48,17 @@
         if (hashtag == "#MeToo") {
             // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
             tableName = 'annes_time_set';
+            tableName2 = "MeTooDate";
 
         }
         else if (hashtag == "#ImpeachTrump") {
             // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
             tableName = 'ImpeachTrump';
+            tableName2 = "ImpeachTrumpDate";
         }
         tweetID = [];
         tweetFavs = [];
-
+        tempStorage = [];
         loadApi();
     }
     google.charts.load('current', {
@@ -86,7 +90,7 @@
         gapi.client.load('bigquery', 'v2').then(
             function () {
                 sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
-                sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag.ImpeachTrumpDate GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
+                sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag." + tableName2 + " GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
 
             }
         );
@@ -191,8 +195,7 @@
             // topTweets(response.result.rows);
             tempStorage = response.result.rows;
             drawChart();
-            console.log("aoaoaoao")
-            console.log(tempStorage)
+
 
 
         })
@@ -249,57 +252,6 @@
         data.addColumn('datetime', 'Date');
         data.addColumn('number', ' ');
 
-        // data.addRows([
-        //     // change strings to Dates (year, month), where months are zero-indexed
-        //     [new Date(2019, 0, 30, 22, null, null), 2],
-        //     [new Date(2019, 0, 30, 20, null, null), 5],
-        //     [new Date(2019, 0, 30, 18, null, null), 3],
-        //     [new Date(2019, 0, 30, 16, null, null), 3],
-        //     [new Date(2019, 0, 30, 14, null, null), 12],
-        //     [new Date(2019, 0, 30, 12, null, null), 10],
-        //     [new Date(2019, 0, 30, 10, null, null), 9],
-        //     [new Date(2019, 0, 30, 8, null, null), 10],
-        //     [new Date(2019, 0, 30, 6, null, null), 8],
-        //     [new Date(2019, 0, 30, 4, null, null), 8],
-        //     [new Date(2019, 0, 30, 2, null, null), 6],
-        //     [new Date(2019, 0, 30, 0, null, null), 6],
-        //     [new Date(2019, 0, 29, 22, null, null), 2],
-        //     [new Date(2019, 0, 29, 20, null, null), 5],
-        //     [new Date(2019, 0, 29, 18, null, null), 3],
-        //     [new Date(2019, 0, 29, 16, null, null), 3],
-        //     [new Date(2019, 0, 29, 14, null, null), 12],
-        //     [new Date(2019, 0, 29, 12, null, null), 10],
-        //     [new Date(2019, 0, 29, 10, null, null), 9],
-        //     [new Date(2019, 0, 29, 8, null, null), 10],
-        //     [new Date(2019, 0, 29, 6, null, null), 8],
-        //     [new Date(2019, 0, 29, 4, null, null), 8],
-        //     [new Date(2019, 0, 29, 2, null, null), 6],
-        //     [new Date(2019, 0, 29, 0, null, null), 6],
-        //     [new Date(2019, 0, 28, 22, null, null), 2],
-        //     [new Date(2019, 0, 28, 20, null, null), 5],
-        //     [new Date(2019, 0, 28, 18, null, null), 3],
-        //     [new Date(2019, 0, 28, 16, null, null), 5],
-        //     [new Date(2019, 0, 28, 14, null, null), 2],
-        //     [new Date(2019, 0, 28, 12, null, null), 5],
-        //     [new Date(2019, 0, 28, 10, null, null), 3],
-        //     [new Date(2019, 0, 28, 8, null, null), 3],
-        //     [new Date(2019, 0, 28, 6, null, null), 12],
-        //     [new Date(2019, 0, 28, 4, null, null), 10],
-        //     [new Date(2019, 0, 28, 2, null, null), 9],
-        //     [new Date(2019, 0, 28, 0, null, null), 5],
-        //     [new Date(2019, 0, 27, 22, null, null), 2],
-        //     [new Date(2019, 0, 27, 20, null, null), 5],
-        //     [new Date(2019, 0, 27, 18, null, null), 3],
-        //     [new Date(2019, 0, 27, 16, null, null), 3],
-        //     [new Date(2019, 0, 27, 14, null, null), 12],
-        //     [new Date(2019, 0, 27, 12, null, null), 10],
-        //     [new Date(2019, 0, 27, 10, null, null), 9],
-        //     [new Date(2019, 0, 27, 8, null, null), 10],
-        //     [new Date(2019, 0, 27, 6, null, null), 8],
-        //     [new Date(2019, 0, 27, 4, null, null), 8],
-        //     [new Date(2019, 0, 27, 2, null, null), 6],
-        //     [new Date(2019, 0, 27, 0, null, null), 6]
-        // ]);
         var testStorage = []
         
         for(i = 0; i <  tempStorage.length; i ++) {

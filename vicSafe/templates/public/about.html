@@ -306,7 +306,7 @@
             var item = tempStorage[i]
             console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
 
-            testStorage.push([new Date(item.f[0].v, item.f[1].v, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
+            testStorage.push([new Date(item.f[0].v, item.f[1].v-1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
         }
 
         console.log("hiashdihasidhiash")
@@ -343,8 +343,8 @@
             },
             state: {
                 range: {
-                    start: new Date(2019, 1, 31, 0, null, null),
-                    end: new Date(2019, 2, 1, 23, null, null)
+                    start: new Date(2019, 0, 31, 0, null, null),
+                    end: new Date(2019, 1, 1, 23, null, null)
                 }
             }
         });

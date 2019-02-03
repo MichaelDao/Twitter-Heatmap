@@ -37,6 +37,8 @@
     var jobCheckTimer;
     var tweetID = [];
     var tweetFavs = [];
+
+    var tempStorage = [];
     document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
     function hashtagSelector(e) {
@@ -84,6 +86,8 @@
         gapi.client.load('bigquery', 'v2').then(
             function () {
                 sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+                sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag.ImpeachTrumpDate GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
+
             }
         );
     }
@@ -102,6 +106,22 @@
             console.log("shenma")
             console.log(response)
             checkJobStatus(response.jobReference.jobId);
+        });
+    }
+
+    function sendQuery2(queryString) {
+        var request = gapi.client.bigquery.jobs.query({
+            'query': queryString,
+            'timeoutMs': 30000,
+            'datasetId': datasetId,
+            'projectId': billingProjectId,
+            'useLegacySql': false,
+            'jobId': 'abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e'
+        });
+        request.execute(function (response) {
+            console.log("shenma")
+            console.log(response)
+            checkJobStatus2(response.jobReference.jobId);
         });
     }
 
@@ -128,6 +148,29 @@
         });
     }
 
+    function checkJobStatus2(jobId) {
+        var request = gapi.client.bigquery.jobs.get({
+            'projectId': billingProjectId,
+            'jobId': jobId
+        });
+        request.execute(function (response) {
+            if (response.status.errorResult) {
+                // Handle any errors
+                console.log(response.status.error);
+            } else {
+                if (response.status.state == 'DONE') {
+                    // Get the results
+                    clearTimeout(jobCheckTimer);
+                    getQueryResults2(jobId);
+                } else {
+                    // Not finished, check again in a moment
+                    jobCheckTimer = setTimeout(checkJobStatus, 500, [jobId]);
+                }
+            }
+        });
+    }
+
+
     // When a BigQuery job has completed, fetch the results.
     function getQueryResults(jobId) {
         var request = gapi.client.bigquery.jobs.getQueryResults({
@@ -138,6 +181,23 @@
             topTweets(response.result.rows);
         })
     }
+
+    function getQueryResults2(jobId) {
+        var request = gapi.client.bigquery.jobs.getQueryResults({
+            'projectId': billingProjectId,
+            'jobId': jobId
+        });
+        request.execute(function (response) {
+            // topTweets(response.result.rows);
+            tempStorage = response.result.rows;
+            drawChart();
+            console.log("aoaoaoao")
+            console.log(tempStorage)
+
+
+        })
+    }
+
 
 
     // Show query results.
@@ -189,57 +249,73 @@
         data.addColumn('datetime', 'Date');
         data.addColumn('number', ' ');
 
-        data.addRows([
-            // change strings to Dates (year, month), where months are zero-indexed
-            [new Date(2019, 0, 30, 22, null, null), 2],
-            [new Date(2019, 0, 30, 20, null, null), 5],
-            [new Date(2019, 0, 30, 18, null, null), 3],
-            [new Date(2019, 0, 30, 16, null, null), 3],
-            [new Date(2019, 0, 30, 14, null, null), 12],
-            [new Date(2019, 0, 30, 12, null, null), 10],
-            [new Date(2019, 0, 30, 10, null, null), 9],
-            [new Date(2019, 0, 30, 8, null, null), 10],
-            [new Date(2019, 0, 30, 6, null, null), 8],
-            [new Date(2019, 0, 30, 4, null, null), 8],
-            [new Date(2019, 0, 30, 2, null, null), 6],
-            [new Date(2019, 0, 30, 0, null, null), 6],
-            [new Date(2019, 0, 29, 22, null, null), 2],
-            [new Date(2019, 0, 29, 20, null, null), 5],
-            [new Date(2019, 0, 29, 18, null, null), 3],
-            [new Date(2019, 0, 29, 16, null, null), 3],
-            [new Date(2019, 0, 29, 14, null, null), 12],
-            [new Date(2019, 0, 29, 12, null, null), 10],
-            [new Date(2019, 0, 29, 10, null, null), 9],
-            [new Date(2019, 0, 29, 8, null, null), 10],
-            [new Date(2019, 0, 29, 6, null, null), 8],
-            [new Date(2019, 0, 29, 4, null, null), 8],
-            [new Date(2019, 0, 29, 2, null, null), 6],
-            [new Date(2019, 0, 29, 0, null, null), 6],
-            [new Date(2019, 0, 28, 22, null, null), 2],
-            [new Date(2019, 0, 28, 20, null, null), 5],
-            [new Date(2019, 0, 28, 18, null, null), 3],
-            [new Date(2019, 0, 28, 16, null, null), 5],
-            [new Date(2019, 0, 28, 14, null, null), 2],
-            [new Date(2019, 0, 28, 12, null, null), 5],
-            [new Date(2019, 0, 28, 10, null, null), 3],
-            [new Date(2019, 0, 28, 8, null, null), 3],
-            [new Date(2019, 0, 28, 6, null, null), 12],
-            [new Date(2019, 0, 28, 4, null, null), 10],
-            [new Date(2019, 0, 28, 2, null, null), 9],
-            [new Date(2019, 0, 28, 0, null, null), 5],
-            [new Date(2019, 0, 27, 22, null, null), 2],
-            [new Date(2019, 0, 27, 20, null, null), 5],
-            [new Date(2019, 0, 27, 18, null, null), 3],
-            [new Date(2019, 0, 27, 16, null, null), 3],
-            [new Date(2019, 0, 27, 14, null, null), 12],
-            [new Date(2019, 0, 27, 12, null, null), 10],
-            [new Date(2019, 0, 27, 10, null, null), 9],
-            [new Date(2019, 0, 27, 8, null, null), 10],
-            [new Date(2019, 0, 27, 6, null, null), 8],
-            [new Date(2019, 0, 27, 4, null, null), 8],
-            [new Date(2019, 0, 27, 2, null, null), 6],
-            [new Date(2019, 0, 27, 0, null, null), 6]
-        ]);
+        // data.addRows([
+        //     // change strings to Dates (year, month), where months are zero-indexed
+        //     [new Date(2019, 0, 30, 22, null, null), 2],
+        //     [new Date(2019, 0, 30, 20, null, null), 5],
+        //     [new Date(2019, 0, 30, 18, null, null), 3],
+        //     [new Date(2019, 0, 30, 16, null, null), 3],
+        //     [new Date(2019, 0, 30, 14, null, null), 12],
+        //     [new Date(2019, 0, 30, 12, null, null), 10],
+        //     [new Date(2019, 0, 30, 10, null, null), 9],
+        //     [new Date(2019, 0, 30, 8, null, null), 10],
+        //     [new Date(2019, 0, 30, 6, null, null), 8],
+        //     [new Date(2019, 0, 30, 4, null, null), 8],
+        //     [new Date(2019, 0, 30, 2, null, null), 6],
+        //     [new Date(2019, 0, 30, 0, null, null), 6],
+        //     [new Date(2019, 0, 29, 22, null, null), 2],
+        //     [new Date(2019, 0, 29, 20, null, null), 5],
+        //     [new Date(2019, 0, 29, 18, null, null), 3],
+        //     [new Date(2019, 0, 29, 16, null, null), 3],
+        //     [new Date(2019, 0, 29, 14, null, null), 12],
+        //     [new Date(2019, 0, 29, 12, null, null), 10],
+        //     [new Date(2019, 0, 29, 10, null, null), 9],
+        //     [new Date(2019, 0, 29, 8, null, null), 10],
+        //     [new Date(2019, 0, 29, 6, null, null), 8],
+        //     [new Date(2019, 0, 29, 4, null, null), 8],
+        //     [new Date(2019, 0, 29, 2, null, null), 6],
+        //     [new Date(2019, 0, 29, 0, null, null), 6],
+        //     [new Date(2019, 0, 28, 22, null, null), 2],
+        //     [new Date(2019, 0, 28, 20, null, null), 5],
+        //     [new Date(2019, 0, 28, 18, null, null), 3],
+        //     [new Date(2019, 0, 28, 16, null, null), 5],
+        //     [new Date(2019, 0, 28, 14, null, null), 2],
+        //     [new Date(2019, 0, 28, 12, null, null), 5],
+        //     [new Date(2019, 0, 28, 10, null, null), 3],
+        //     [new Date(2019, 0, 28, 8, null, null), 3],
+        //     [new Date(2019, 0, 28, 6, null, null), 12],
+        //     [new Date(2019, 0, 28, 4, null, null), 10],
+        //     [new Date(2019, 0, 28, 2, null, null), 9],
+        //     [new Date(2019, 0, 28, 0, null, null), 5],
+        //     [new Date(2019, 0, 27, 22, null, null), 2],
+        //     [new Date(2019, 0, 27, 20, null, null), 5],
+        //     [new Date(2019, 0, 27, 18, null, null), 3],
+        //     [new Date(2019, 0, 27, 16, null, null), 3],
+        //     [new Date(2019, 0, 27, 14, null, null), 12],
+        //     [new Date(2019, 0, 27, 12, null, null), 10],
+        //     [new Date(2019, 0, 27, 10, null, null), 9],
+        //     [new Date(2019, 0, 27, 8, null, null), 10],
+        //     [new Date(2019, 0, 27, 6, null, null), 8],
+        //     [new Date(2019, 0, 27, 4, null, null), 8],
+        //     [new Date(2019, 0, 27, 2, null, null), 6],
+        //     [new Date(2019, 0, 27, 0, null, null), 6]
+        // ]);
+        var testStorage = []
+        
+        for(i = 0; i <  tempStorage.length; i ++) {
+            var item = tempStorage[i]
+            console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
+
+            testStorage.push([new Date(item.f[0].v, item.f[1].v, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
+        }
+
+        console.log("hiashdihasidhiash")
+        console.log(testStorage)
+        data.addRows(
+            testStorage
+        );
+        
+       
 
         var dateFormat = new google.visualization.DateFormat({ pattern: 'EEE d, hh a' });
         dateFormat.format(data, 0);
@@ -252,9 +328,9 @@
                 ui: {
                     chartOptions: {
                         height: 50,
-                        width: "90%", // must be the same in both the chart and the control
+                        width: 1500, // must be the same in both the chart and the control
                         chartArea: {
-                            width: '70%' // must be the same in both the chart and the control
+                            width: 1000 // must be the same in both the chart and the control
                         },
                         hAxis: {
                             format: 'EEE d, hh a'
@@ -267,8 +343,8 @@
             },
             state: {
                 range: {
-                    start: new Date(2019, 0, 27, 0, null, null),
-                    end: new Date(2019, 0, 30, 23, null, null)
+                    start: new Date(2019, 1, 31, 0, null, null),
+                    end: new Date(2019, 2, 1, 23, null, null)
                 }
             }
         });
@@ -282,7 +358,7 @@
                     width: '70%', // must be the same in both the chart and the control
                     height: '50%'
                 },
-                width: "90%", // must be the same in both the chart and the control
+                width: 1500, // must be the same in both the chart and the control
                 height: 300,
                 fontName: ["Arial"],
                 colors: ['#29ab87'],

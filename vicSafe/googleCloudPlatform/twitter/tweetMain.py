@@ -423,10 +423,11 @@ def uploadDataDate(fileName):
     createTableDate(fileName)
     
 # You are creating the file into the bucket, with upload data as a name
-    blob = bucket.blob(uploadData + '.csv')
-
+    blob = bucket.blob(fileData + '.csv')
+    
 # look for the local file that you want to upload
-    blob.upload_from_filename('data/' + fileName + '.csv')
+
+    blob.upload_from_filename('data/' + uploadData + '.csv')
 
 def createTableDate(fileName):
     tableName = fileName

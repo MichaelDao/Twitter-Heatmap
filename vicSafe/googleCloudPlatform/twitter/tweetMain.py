@@ -456,7 +456,7 @@ def createTableLocation(fileName):
 
 hashInput = input("Enter in the hashtag you want to Scrape: ")
 # scrape the data 
-# scrape(hashInput)
+scrape(hashInput)
 
 # process the location
 processLocation(hashInput)

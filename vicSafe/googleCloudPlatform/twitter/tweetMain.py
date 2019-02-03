@@ -17,6 +17,9 @@ job_config = bigquery.LoadJobConfig()
 job_config.autodetect = True
 job_config.skip_leading_rows = 1
 
+client = storage.Client(project='abgcorp-vicsafe')
+bucket = client.get_bucket('abgcorp-vicsafe')
+
 counterTweet = 0
 
 # Input credentials here

@@ -8,6 +8,12 @@
     </div>
     <br>
 </div>
+<div class="wrapOver">
+    <select id="hashtagDrop">
+        <option value="#MeToo">#MeToo</option>
+        <option value="#ImpeachTrump">#ImpeachTrump</option>
+    </select>
+</div>
 <div id="barchart_div"></div>
 <div id="dashboard">
     <br>
@@ -30,7 +36,8 @@
     // Limit the number of records that a query will return.    var recordLimit = 10000;
     var recordLimit = 10000;
     var jobCheckTimer;
-
+    var tweetID = [];
+    var tweetFavs = [];
     document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
     function hashtagSelector(e) {
@@ -38,12 +45,14 @@
         if (hashtag == "#MeToo") {
             // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
             tableName = 'annes_time_set';
+
         }
         else if (hashtag == "#ImpeachTrump") {
             // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
             tableName = 'ImpeachTrump';
         }
-
+        tweetID = [];
+        tweetFavs = [];
 
         loadApi();
     }
@@ -75,7 +84,7 @@
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
             function () {
-                sendQuery("SELECT tweet_id, favourites from tweet_hashtag."+tableName+" GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
+                sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 10");
             }
         );
     }
@@ -130,8 +139,7 @@
             topTweets(response.result.rows);
         })
     }
-    var tweetID = [];
-    var tweetFavs = [];
+
 
     // Show query results.
     function topTweets(rows) {
@@ -245,7 +253,7 @@
                 ui: {
                     chartOptions: {
                         height: 50,
-                        width: 1500, // must be the same in both the chart and the control
+                        width: "90%", // must be the same in both the chart and the control
                         chartArea: {
                             width: '70%' // must be the same in both the chart and the control
                         },
@@ -275,7 +283,7 @@
                     width: '70%', // must be the same in both the chart and the control
                     height: '50%'
                 },
-                width: 1500, // must be the same in both the chart and the control
+                width: "90%", // must be the same in both the chart and the control
                 height: 300,
                 fontName: ["Arial"],
                 colors: ['#29ab87'],

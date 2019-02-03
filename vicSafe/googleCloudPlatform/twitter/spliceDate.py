@@ -11,6 +11,7 @@ outnameInput = input("Saved Processed as:")
 fname = 'data/' + fnameInput + '.json'
 outname = 'data/' + outnameInput + '.json'
 geoCodeKey = 'Z3Xd2SCGcM9fiaoKnm18ZhI09X0Z0Hw3'
+
 # The json  file variable names
 csvName =   outnameInput + '.csv'
 

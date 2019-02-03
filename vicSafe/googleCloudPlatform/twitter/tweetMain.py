@@ -9,9 +9,6 @@ from tweepy import StreamListener
 from tweepy import OAuthHandler
 import json
 
-client = storage.Client(project='abgcorp-vicsafe')
-bucket = client.get_bucket('abgcorp-vicsafe')
-
 from google.cloud import bigquery
 client = bigquery.Client()
 dataset_id = 'tweet_hashtag'
@@ -398,7 +395,7 @@ def processDate(fnameInput):
         print("\nKeyboard interrupt detected, Creating unfinished JSON file")
         with open(outName + '.json', 'w') as fout:
             fout.write(json.dumps(users_with_geodata, indent=4))
-    uploadDataLocation(fnameInput + "_date")
+    uploadDataDate(fnameInput + "_date")
 
 def uploadDataLocation(fileName):
     client = storage.Client(project='abgcorp-vicsafe')
@@ -408,10 +405,10 @@ def uploadDataLocation(fileName):
     fileData = fileName
     createTableLocation(fileName)
     
-# You are creating the file into the bucket, with upload data as a name
+    # You are creating the file into the bucket, with upload data as a name
     blob = bucket.blob(uploadData + '.csv')
 
-# look for the local file that you want to upload
+    # look for the local file that you want to upload
     blob.upload_from_filename('data/' + fileData + '.csv')
 
 def uploadDataDate(fileName):
@@ -422,11 +419,9 @@ def uploadDataDate(fileName):
     fileData = fileName
     createTableDate(fileName)
     
-# You are creating the file into the bucket, with upload data as a name
+    # You are creating the file into the bucket, with upload data as a name
     blob = bucket.blob(fileData + '.csv')
-    
-# look for the local file that you want to upload
-
+    # look for the local file that you want to upload
     blob.upload_from_filename('data/' + uploadData + '.csv')
 
 def createTableDate(fileName):

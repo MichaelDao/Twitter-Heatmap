@@ -9,16 +9,16 @@ from tweepy import StreamListener
 from tweepy import OAuthHandler
 import json
 
+clientSt = storage.Client(project='abgcorp-vicsafe')
+bucket = clientSt.get_bucket('abgcorp-vicsafe')
+
 from google.cloud import bigquery
-client = bigquery.Client()
+client= bigquery.Client()
 dataset_id = 'tweet_hashtag'
 dataset_ref = client.dataset(dataset_id)
 job_config = bigquery.LoadJobConfig()
 job_config.autodetect = True
 job_config.skip_leading_rows = 1
-
-client = storage.Client(project='abgcorp-vicsafe')
-bucket = client.get_bucket('abgcorp-vicsafe')
 
 counterTweet = 0
 
@@ -150,18 +150,18 @@ def processLocation(fnameInput):
             # Create header
             first = True
 
-            for key, value in user_data.items():
-                # special first case
-                if first:
-                    first = False
-                    addLine.write(str(value))
-                else:
-                    addLine.write("," + str(value))
+            # for key, value in user_data.items():
+            #     # special first case
+            #     if first:
+            #         first = False
+            #         addLine.write(str(value))
+            #     else:
+            #         addLine.write("," + str(value))
 
-            # tweetCSVLine =  str(user_data['user_id']) + ',' + str(user_data['tweet_id']) + \
-                # ',' + str(user_data['longitude']) + ',' + str(user_data['latitude']) + ',' + str(user_data['favourites']) + '\n'
+            tweetCSVLine =  str(user_data['user_id']) + ',' + str(user_data['tweet_id']) + \
+                 ',' + str(user_data['longitude']) + ',' + str(user_data['latitude']) + ',' + str(user_data['favourites']) + '\n'
 
-            # addLine.write(tweetCSVLine)
+            addLine.write(tweetCSVLine)
             addLine.close()
 
         with open(fname, 'r') as f:
@@ -251,7 +251,7 @@ def processDate(fnameInput):
 
     fname = 'data/' + fnameInput + '_raw.json'
     outName = 'data/' + fnameInput + '_date'
-
+    csvName = outName + ".csv"
     # Wrapped in a try catch to help process json file on interrupt
     try:
         # find geolocation with mapquest
@@ -271,48 +271,31 @@ def processDate(fnameInput):
         def prepareCSV(user_data):
             try:
                 # File already exists
-                fCheck = open(outName + '.csv', 'r')
+                fCheck = open(csvName, 'r')
                 fCheck.close()
 
             except FileNotFoundError:
+                # Keep preset values file not found
+                print('Creating new file \n')
+
                 # Open a new file
-                newFile = open(outName + '.csv', "w+")
+                newFile = open(csvName, "w+")
 
-                first = True
-
-                # Create header
-                for key, value in user_data.items():
-                    # special first case
-                    if first:
-                        first = False
-                        newFile.write(str(key))
-                    else:
-                        newFile.write("," + str(key))
-
-                # New line and close header writing
-                newFile.write('\n')
+                # first line is unfortunately hardcoded header
+                newFile.write("month, " + "dayNum, " + "time, " + "year " + "\n")
                 newFile.close()
+                
 
-            addLine = open(outName + '.csv', 'a')
+            addLine = open(csvName, 'a')
 
-            # Create header
-            first = True
+            tweetCSVLine = str(user_data['month']) +", " + str(user_data['dayNum']) +", " + str(user_data['time']) +", " + str(user_data['year']) + '\n'
 
-            for key, value in user_data.items():
-                # special first case
-                if first:
-                    first = False
-                    addLine.write(str(value))
-                else:
-                    addLine.write("," + str(value))
-
-            tweetCSVLine =  str(user_data['month']) + ',' + str(user_data['dayNum']) + \
-            ',' + str(user_data['time']) + ',' + str(user_data['year']) +  '\n'
 
             addLine.write(tweetCSVLine)
-            addLine.close()
+
 
         with open(fname, 'r') as f:
+
             # Create dictionary to later be stored as JSON. All data will be included
             # in the list 'data'
             users_with_geodata = {
@@ -326,9 +309,6 @@ def processDate(fnameInput):
 
             # Loop through each line in our raw file
             for line in f:
-                if line is None:
-                    print("nothing found")
-                    continue
                 tweet = json.loads(line)
 
                 # if the tweet has a user id, analyse
@@ -336,7 +316,8 @@ def processDate(fnameInput):
 
                     # Increment total tweeets
                     total_tweets += 1
-                    print('analysing tweet ' + str(total_tweets) + '\n')
+                    time = tweet['created_at']
+                    print('analysing tweet ' + str(total_tweets)+ str(time) + '\n')
 
                     # Prepare user ID and make sure it is distinct
                     user_id = tweet['user']['id']
@@ -347,18 +328,21 @@ def processDate(fnameInput):
 
                         # Location is not null
                         if locationString is not None:
-                            print("It's working")    
+
                             # Attempt at unicode bugfix, use try catch if continues
                             locationString.encode('utf-8').strip()
-                            coord = findGeoFunc(locationString)
+                            # coord = findGeoFunc(locationString)
 
                             # add this gelocated user to list
                             all_users.append(user_id)
 
-                            # Give users some data to find them by. User_id listed separately
-                            # to make iterating this data later easier
+                            # splice time into four categories
                             array = tweet['created_at']
 
+                            # array = date.split(" ");
+
+                            print(array)
+                            
                             day, month, dayNum, time, ran, year = array.split()
 
                             abbr_to_num = {name: num for num, name in enumerate(calendar.month_abbr) if num}
@@ -370,6 +354,8 @@ def processDate(fnameInput):
                             intTime = int(hourTime)
                             intYear = int(year)
 
+
+                            
                             # Give users some data to find them by. User_id listed separately
                             # to make iterating this data later easier
                             user_data = {
@@ -401,8 +387,6 @@ def processDate(fnameInput):
     uploadDataDate(fnameInput + "_date")
 
 def uploadDataLocation(fileName):
-    client = storage.Client(project='abgcorp-vicsafe')
-    bucket = client.get_bucket('abgcorp-vicsafe')
 
     uploadData = fileName
     fileData = fileName
@@ -415,8 +399,6 @@ def uploadDataLocation(fileName):
     blob.upload_from_filename('data/' + fileData + '.csv')
 
 def uploadDataDate(fileName):
-    client = storage.Client(project='abgcorp-vicsafe')
-    bucket = client.get_bucket('abgcorp-vicsafe')
 
     uploadData = fileName
     fileData = fileName
@@ -474,7 +456,7 @@ def createTableLocation(fileName):
 
 hashInput = input("Enter in the hashtag you want to Scrape: ")
 # scrape the data 
-scrape(hashInput)
+# scrape(hashInput)
 
 # process the location
 processLocation(hashInput)

@@ -15,13 +15,23 @@
 </div>
 <div id="dashboard">
     <div id="barchart_div"></div>
-    <container id="twitterContainer">
+    <br>
+    <container id="twitterContainer" class="row">
 
 
     </container>
     <br>
     <div id="chart_div"></div>
     <div id="range_filter_div"></div>
+</div>
+<br>
+<div class="loading">
+    <div class="lds-ripple">
+
+        <div></div>
+        <div></div>
+
+    </div>
 </div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -43,31 +53,36 @@
     var jobCheckTimer;
     var tweetID = [];
     var tweetFavs = [];
-
+    var loading = false;
     var tempStorage = [];
-    document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
 
+    //set loading to true 
+    function getloading(status) {
+        const load = document.querySelector('.loading');
+        if (status == false) {
+            load.style.display = "none";
+        } else {
+            load.style.display = "block"
+        }
+    }
+
+    document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
     function hashtagSelector(e) {
         var hashtag = e.target.value;
         if (hashtag == "#MeToo") {
-            // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
             tableName = 'annes_time_set';
             tableName2 = "MeTooDate";
-            for (var i = 0; i < 5; i++) {
-                var element = document.getElementById("tweet"+i);
-                element.parentNode.removeChild(element);
-            }
-
         }
         else if (hashtag == "#ImpeachTrump") {
-            // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
             tableName = 'ImpeachTrump';
-            tableName2 = "ImpeachTrumpDate";
-            for (var i = 0; i < 5; i++) {
-                var element = document.getElementById("tweet"+i);
-                element.parentNode.removeChild(element);
-            }
+            tableName2 = "ImpeachTrumpDate"
         }
+        //Clearing out top 5 tweets
+        for (var i = 0; i < 5; i++) {
+            var element = document.getElementById("tweet" + i);
+            element.parentNode.removeChild(element);
+        }
+        //Preparing variables for new table
         tweetID = [];
         tweetFavs = [];
         tempStorage = [];
@@ -96,13 +111,14 @@
             console.error('Not authorized.')
         }
     }
-    // Bar Chart of Top 10 favourite tweets
     // Load BigQuery client API and then initialize the map.
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
             function () {
                 sendQuery("SELECT tweet_id, favourites from tweet_hashtag." + tableName + " GROUP BY tweet_id,favourites ORDER BY favourites DESC LIMIT 5");
                 sendQuery2("SELECT year,month,dayNum, CAST(time AS INT64) as time, Count(*) as frequency FROM tweet_hashtag." + tableName2 + " GROUP BY year,month,dayNum,time ORDER BY year DESC, month DESC, daynum DESC, time DESC");
+                loading = true;
+                getloading(loading);
 
             }
         );
@@ -119,7 +135,6 @@
             'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
         });
         request.execute(function (response) {
-            console.log("shenma1")
             console.log(response)
             checkJobStatus(response.jobReference.jobId);
         });
@@ -135,13 +150,12 @@
             'jobId': 'abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e'
         });
         request.execute(function (response) {
-            console.log("shenma2")
             console.log(response)
             checkJobStatus2(response.jobReference.jobId);
         });
     }
 
-    // Poll a job to see if it has finished executing.
+    // Checking to see if it has finished executing.
     function checkJobStatus(jobId) {
         var request = gapi.client.bigquery.jobs.get({
             'projectId': billingProjectId,
@@ -204,7 +218,6 @@
             'jobId': jobId
         });
         request.execute(function (response) {
-            // topTweets(response.result.rows);
             tempStorage = response.result.rows;
             drawChart();
 
@@ -228,42 +241,50 @@
 
     function drawMultSeries() {
 
-
+        //adds data for first tweet to set required datatypes
         var data = google.visualization.arrayToDataTable([
             ['id', 'Favourites', { role: 'style' }],
             ["Tweet 1", tweetFavs[0], '#00aced'],
 
         ]);
-        var newTweet = document.createElement("iframe");
-        newTweet.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[0]);
-        newTweet.setAttribute("height", "500");
-        newTweet.setAttribute("width", "40%");
-        newTweet.setAttribute("id", "tweet0");
-        newTweet.style="max-width: 450px;align-self: center;";
-
-        // add the newly created element and its content into the DOM 
-        document.getElementById("twitterContainer").appendChild(newTweet);
-
+        
         for (var i = 1; i < tweetID.length; i++) {
             data.addRows([
                 ["Tweet " + (i + 1), tweetFavs[i], '#00aced']
-            ])
-            console.log(tweetID[i]);
+            ])      
+        }
 
+        //shows the top 5 tweets
+        for (var i = 0; i < tweetID.length; i++) {
             // create a new div element 
-            var newTweet2 = document.createElement("iframe");
-            newTweet2.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[i]);
-            newTweet2.setAttribute("height", "500");
-            newTweet2.setAttribute("width", "40%");
-            newTweet2.setAttribute("id", "tweet" + i);
-            newTweet2.style="max-width: 450px;align-self: center;";
+            var tweetBreak = document.createElement("br");
+            var tweetDiv = document.createElement("div");
+            var tweetTitle = document.createTextNode("Tweet " + (i + 1) + ":");
+            var newTweet = document.createElement("iframe");
+
+            tweetDiv.appendChild(tweetTitle);
+            tweetDiv.appendChild(tweetBreak);
+
+            tweetDiv.setAttribute("width", "40%");
+            tweetDiv.setAttribute("class", "col mx-auto");
+            tweetDiv.style = "max-width: 450px;min-width:300px;width:40%;";
+
+            newTweet.setAttribute("src", "https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetID[i]);
+            newTweet.setAttribute("height", "500");
+            tweetDiv.setAttribute("id", "tweet" + i);
+            newTweet.style = "max-width: 450px;width:100%;";
 
             // add the newly created element and its content into the DOM 
-            document.getElementById("twitterContainer").appendChild(newTweet2);
-
+            tweetDiv.appendChild(newTweet);
+            document.getElementById("twitterContainer").appendChild(tweetDiv);
         }
         var options = {
             title: 'Most Liked Tweets',
+            titleTextStyle: {
+                italic: false,
+                color: 'black',
+                fontSize: 30,
+            },
             chartArea: {
                 width: '50%'
             },
@@ -280,6 +301,8 @@
         };
         var chart = new google.visualization.BarChart(document.getElementById('barchart_div'));
         chart.draw(data, options);
+        loading = false;
+        getloading(loading);
     }
 
     //Line graph for how many tweets sent out every hour
@@ -294,19 +317,12 @@
         var testStorage = []
 
         for (i = 0; i < tempStorage.length; i++) {
-            var item = tempStorage[i]
-            console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
+            var item = tempStorage[i];
 
             testStorage.push([new Date(item.f[0].v, item.f[1].v - 1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
         }
 
-        console.log("hiashdihasidhiash")
-        console.log(testStorage)
-        data.addRows(
-            testStorage
-        );
-
-
+        data.addRows(testStorage);
 
         var dateFormat = new google.visualization.DateFormat({ pattern: 'EEE d, hh a' });
         dateFormat.format(data, 0);
@@ -344,6 +360,12 @@
             chartType: 'LineChart',
             containerId: 'chart_div',
             options: {
+                title: 'Frequency Of Tweets Sent Out Every Hour',
+                titleTextStyle: {
+                    italic: false,
+                    color: 'black',
+                    fontSize: 30,
+                },
                 // width and chartArea.width should be the same for the filter and chart
                 chartArea: {
                     width: '70%', // must be the same in both the chart and the control
@@ -356,13 +378,21 @@
                 curveType: ['none'],
                 fontSize: ['13'],
                 hAxis: {
-                    title: 'Period',
+                    title: 'Time (Hours) & Date',
                     titleTextStyle: {
                         italic: false,
                         color: 'black',
                         fontSize: 15
                     },
                     format: 'EEE d, hh a'
+                },
+                vAxis: {
+                    title: 'Frequency',
+                    titleTextStyle: {
+                        italic: false,
+                        color: 'black',
+                        fontSize: 15
+                    },
                 },
                 legend: {
                     position: 'right',

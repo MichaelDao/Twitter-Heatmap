@@ -70,19 +70,19 @@
     function hashtagSelector(e) {
         var hashtag = e.target.value;
         if (hashtag == "#MeToo") {
-            // jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
             tableName = 'annes_time_set';
             tableName2 = "MeTooDate";
         }
         else if (hashtag == "#ImpeachTrump") {
-            // jobId = 'abgcorp-vicsafe:US.bquxjob_1387dc25_168b14b323e';
             tableName = 'ImpeachTrump';
             tableName2 = "ImpeachTrumpDate"
         }
+        //Clearing out top 5 tweets
         for (var i = 0; i < 5; i++) {
             var element = document.getElementById("tweet" + i);
             element.parentNode.removeChild(element);
         }
+        //Preparing variables for new table
         tweetID = [];
         tweetFavs = [];
         tempStorage = [];
@@ -111,7 +111,6 @@
             console.error('Not authorized.')
         }
     }
-    // Bar Chart of Top 10 favourite tweets
     // Load BigQuery client API and then initialize the map.
     function loadApi() {
         gapi.client.load('bigquery', 'v2').then(
@@ -136,7 +135,6 @@
             'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
         });
         request.execute(function (response) {
-            console.log("shenma1")
             console.log(response)
             checkJobStatus(response.jobReference.jobId);
         });
@@ -152,13 +150,12 @@
             'jobId': 'abgcorp-vicsafe:US.bquxjob_79403ccc_168b2419f3e'
         });
         request.execute(function (response) {
-            console.log("shenma2")
             console.log(response)
             checkJobStatus2(response.jobReference.jobId);
         });
     }
 
-    // Poll a job to see if it has finished executing.
+    // Checking to see if it has finished executing.
     function checkJobStatus(jobId) {
         var request = gapi.client.bigquery.jobs.get({
             'projectId': billingProjectId,
@@ -221,7 +218,6 @@
             'jobId': jobId
         });
         request.execute(function (response) {
-            // topTweets(response.result.rows);
             tempStorage = response.result.rows;
             drawChart();
 
@@ -321,8 +317,7 @@
         var testStorage = []
 
         for (i = 0; i < tempStorage.length; i++) {
-            var item = tempStorage[i]
-            console.log(tempStorage[i].f[0].v + " : " + tempStorage[i].f[1].v + " : " + tempStorage[i].f[2].v + " : " + tempStorage[i].f[3].v)
+            var item = tempStorage[i];
 
             testStorage.push([new Date(item.f[0].v, item.f[1].v - 1, item.f[2].v, item.f[3].v, null, null), parseInt(item.f[4].v)])
         }

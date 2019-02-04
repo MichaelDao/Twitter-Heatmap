@@ -75,7 +75,6 @@ limitations under the License.
         var scopes = 'https://www.googleapis.com/auth/bigquery';
         var projectId = 'abgcorp-vicsafe';
         var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
-        var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         var response_d = [];
 
         // Limit the number of records that a query will return.    
@@ -103,19 +102,15 @@ limitations under the License.
         function hashtagSelector(e) {
             var hashtag = e.target.value;
             if (hashtag == "#MeToo") {
-                jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
                 tableName = 'bigger_metoo';
-
-
             } else {
-                //   jobId = 'abgcorp-vicsafe:US.bquxjob_46fb8942_168adf83d17';
                 tableName = 'ImpeachTrump';
             }
             //once table is switched, reload map
             initMap();
         }
 
-
+        //Turning marker cluster on & off
         function toggleHeat(opt) {
             // toggle the heat map
             if (opt != 1) {
@@ -268,10 +263,9 @@ limitations under the License.
             heatmap = new google.maps.visualization.HeatmapLayer({
                 data: heatmapData,
                 dissipating: false,
-                // radius: 20,
             });
 
-            //creates marker cluster
+            //creates/drawing marker cluster
             var markerCluster, markers;
             if (dot_on) {
                 //adds coordinates to marker array

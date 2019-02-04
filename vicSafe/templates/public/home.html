@@ -15,11 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <html>
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 <head>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> master
     <!-- Inline css -->
     <style>
         html, body {
@@ -29,12 +37,14 @@ limitations under the License.
       }
       #map {
         height: 100%;
+        margin-top: 50px;
       }
     </style>
 </head>
 
 <body>
     <div class="menu">
+<<<<<<< HEAD
             <div class="heat">
     
             </div>
@@ -44,11 +54,41 @@ limitations under the License.
             </div>
     
     </div>
+=======
+        <div class="heat">
+
+        </div>
+
+        <div class="dot">
+
+        </div>
+
+    </div>
+
+    <div class="loading">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="wrapOver">
+        <select id="hashtagDrop">
+            <option value="#MeToo">#MeToo</option>
+            <option value="#ImpeachTrump">#ImpeachTrump</option>
+        </select>
+    </div>
+
+>>>>>>> master
     <!-- Credentials -->
     <script type="text/javascript">
         // Client ID for OAuth 2.0 authorization against BigQuery.
         var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
 
+<<<<<<< HEAD
+=======
+        //change tablename, jobid
+>>>>>>> master
         // BigQuery settings. Replace these with your project, dataset and table names.
         var billingProjectId = 'abgcorp-vicsafe';
         var publicProjectId = 'bigquery-public-data';
@@ -57,7 +97,10 @@ limitations under the License.
         var scopes = 'https://www.googleapis.com/auth/bigquery';
         var projectId = 'abgcorp-vicsafe';
         var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+<<<<<<< HEAD
         var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+=======
+>>>>>>> master
         var response_d = [];
 
         // Limit the number of records that a query will return.    
@@ -67,8 +110,59 @@ limitations under the License.
         var drawingManager;
         var heatmap;
         var locations = [];
+<<<<<<< HEAD
 
         var dot_on = true;
+=======
+        var dot_on = true;
+        var loading = false;
+
+        //set loading to true 
+        function getloading(status) {
+            const load = document.querySelector('.loading');
+            if (status == false) {
+                load.style.display = "none";
+            } else {
+                load.style.display = "block"
+            }
+        }
+
+        //Change which the database to get data from
+        document.getElementById("hashtagDrop").addEventListener("change", hashtagSelector, false);
+        function hashtagSelector(e) {
+            var hashtag = e.target.value;
+            if (hashtag == "#MeToo") {
+                tableName = 'bigger_metoo';
+            } else {
+                tableName = 'ImpeachTrump';
+            }
+            //once table is switched, reload map
+            initMap();
+        }
+
+        //Turning marker cluster on & off
+        function toggleHeat(opt) {
+            // toggle the heat map
+            if (opt != 1) {
+                dot_on = true;
+                initMap()
+                // doHeatMap(response_d);
+            } else {
+                dot_on = false
+                initMap()
+                // doHeatMap(response_d);
+
+            }
+        }
+
+        document.querySelector(".heat").addEventListener("click", () => {
+            toggleHeat(1)
+        }, false);
+        document.querySelector(".dot").addEventListener("click", () => {
+            toggleHeat(0)
+        }, false);
+
+>>>>>>> master
         // Check if the user is authorized.
         function toggleHeat(opt) {
             // if toggle the heat map
@@ -121,7 +215,7 @@ limitations under the License.
                 'datasetId': datasetId,
                 'projectId': billingProjectId,
                 'useLegacySql': false,
-                'jobId': 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4'
+                'jobId': jobId
             });
             request.execute(function (response) {
                 console.log(response)
@@ -164,15 +258,22 @@ limitations under the License.
             })
         }
 
+<<<<<<< HEAD
         // Map-related functions.
+=======
+        // Draw map, call other functions needed to display data on map
+>>>>>>> master
         function initMap() {
+            loading = true;
+            getloading(loading);
             map = new google.maps.Map(document.getElementById('map'), {
                 center: {
-                    lat: 40.744593,
-                    lng: -73.990370
+                    lat: 37.744593,
+                    lng: -95.990370
                 }, // Manhattan, New York.
-                zoom: 4
+                zoom: 5
             });
+<<<<<<< HEAD
             sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag.bigger_metoo");
             locations = []
        
@@ -181,22 +282,41 @@ limitations under the License.
 
 
 
+=======
+
+            sendQuery("SELECT longitude , latitude, tweet_id from tweet_hashtag." + tableName);
+            locations = []
+
+        }
+
+
+        //draws the heatmap
+>>>>>>> master
         function doHeatMap(rows) {
             var heatmapData = [];
             var popups = [];
             var markers = [];
             var tweetids = [];
+<<<<<<< HEAD
+=======
+            //if heatmap is already drawn, clear heatmap data
+>>>>>>> master
             if (heatmap != null) {
                 heatmap.setMap(null);
             }
             var infowindow = new google.maps.InfoWindow(); /* SINGLE */
 
+<<<<<<< HEAD
+=======
+            //create points on the heatmap
+>>>>>>> master
             for (var i = 0; i < rows.length; i++) {
                 var f = rows[i].f;
                 var coords = {
                     lat: parseFloat(f[0].v),
                     lng: parseFloat(f[1].v)
                 };
+<<<<<<< HEAD
                 var item = document.createElement("div");
                 item.setAttribute("id", "content" + i);
                 // var t = document.createTextNode("haha #YEET");
@@ -239,27 +359,90 @@ limitations under the License.
                 {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
             } else {
                 for(let i = 0; i < markers.length; i++) {
+=======
+
+                //adds coordinates to the location array for displaying on the map
+                locations.push(coords);
+                var latLng = new google.maps.LatLng(coords);
+                heatmapData.push(latLng);
+
+                //gets tweetID for showing tweets on marker cluster
+                tweetids.push(f[2].v);
+
+            }
+
+            //creates the heatmap
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapData,
+                dissipating: false,
+            });
+
+            //creates/drawing marker cluster
+            var markerCluster, markers;
+            if (dot_on) {
+                //adds coordinates to marker array
+                markers = locations.map(function (location, i) {
+                    var marker = new google.maps.Marker({
+                        position: location,
+                        map: map,
+                    });
+                    //shows tweet when a marker is clicked
+                    marker.addListener("click", () => {
+                        infowindow.setContent("<iframe border=0 frameborder=0 height=500 width=auto src='https://twitframe.com/show?url=https%3A%2F%2Ftwitter.com%2Fabgcorp%2Fstatus%2F" + tweetids[i] + "'></iframe>")
+                        infowindow.open(map, marker);
+                    });
+                    return marker
+                });
+                //clears heatmap
+                heatmap.setMap(null);
+                //sets map to show cluster
+                markerCluster = new MarkerClusterer(map, markers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
+            } else {
+                //if showing heatmap, remove markers so they do not show
+                for (let i = 0; i < markers.length; i++) {
+>>>>>>> master
                     markers[i].setMap(null);
                     markers[i].removeEventListener("click");
                     markers.shift();
                 }
                 heatmap.setMap(map);
+<<<<<<< HEAD
             
             }
 
            
    
+=======
+
+            }
+            //finish loading script
+            loading = false;
+            getloading(loading);
+
+
+>>>>>>> master
         }
 
        
     </script>
 
+<<<<<<< HEAD
     
     <div id="map"></div>
     
     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
     </script>
     <!-- heatmap -->
+=======
+
+    <div id="map"></div>
+    <!-- load libraries necessary for marker cluster to show -->
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+    </script>
+    <!-- load libraries necessary for heatmap to show -->
+>>>>>>> master
     <script src="https://maps.googleapis.com/maps/api/js?libraries=visualization,drawing&key=AIzaSyCaIgsulgdhIdnfuhry_yNz6j5l_5g0kyc"
         async defer></script>
     <script src="https://apis.google.com/js/client.js"></script>

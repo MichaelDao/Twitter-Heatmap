@@ -4,9 +4,7 @@
    
   
 /* universal */
-<<<<<<< HEAD
 
-=======
 div.loading{
   top: 0;
   left: 0;
@@ -74,7 +72,6 @@ div.loading{
 #hashtagDrop:focus{
   outline: 0!important;
 }
->>>>>>> master
 .menu {
   background: white;
   width: 150px;

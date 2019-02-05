@@ -7,7 +7,8 @@
     "start": "concurrently -n \"WEBPACK,FLASK\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run webpack-dev-server\" \"npm run flask-server\"",
     "webpack-dev-server": "NODE_ENV=debug webpack-dev-server --port 2992 --hot --inline",
     "flask-server": "flask run",
-    "lint": "eslint \"assets/js/*.js\""
+    "lint": "eslint \"assets/js/*.js\"",
+    "deploy": "export FLASK_ENV=production & export FLASK_DEBUG=0 & sudo flask run --host=0.0.0.0 --port=80"
   },
   "repository": {
     "type": "git",

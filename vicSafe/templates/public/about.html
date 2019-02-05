@@ -1,6 +1,90 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      // Client ID for OAuth 2.0 authorization against BigQuery.
+      var clientId = '232842471431-fhnng6i16ui8adjrvs400ei3foh7aidt.apps.googleusercontent.com';
+        // BigQuery settings. Replace these with your project, dataset and table names.
+        var billingProjectId = 'abgcorp-vicsafe';
+        var publicProjectId = 'bigquery-public-data';
+        var datasetId = 'tweet_hashtag';
+        var tableName = 'metoo';
+        var scopes = 'https://www.googleapis.com/auth/bigquery';
+        var projectId = 'abgcorp-vicsafe';
+        var jobId = 'abgcorp-vicsafe:US.bquxjob_7f39d649_16893d20ab4';
+        // Limit the number of records that a query will return.    var recordLimit = 10000;
+        var recordLimit = 10000;
+        var jobCheckTimer;
+        var map;
+        var drawingManager;
+        var heatmap;
+        // Check if the user is authorized.
+        function authorize(event) {
+            gapi.auth.authorize({
+                client_id: clientId,
+                scope: scopes,
+                immediate: false
+            }, handleAuthResult);
+            return false;
+        }
+        // If authorized, load BigQuery API
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                loadApi();
+                console.log("yeet")
+            } else {
+                console.log(authResult)
+                console.error('Not authorized.')
+            }
+        }
+        // Load BigQuery client API and then initialize the map.
+        function loadApi() {
+            gapi.client.load('bigquery', 'v2').then(
+                function() {
+                    drawChart();
+                }
+            );
+        }
+
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Date', 'No. Tweets'],
+          ['28/01',  10],
+          ['29/01',    20],
+          ['30/01', 30],
+          ['31/01',  50]
+        ]);
+
+        var options = {
+          title: 'Number of Tweets by Date',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+
+
+
+      
+    </script>
+
+
+
+  </head>
+  <body>
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+  </body>
+</html>
+
 <div class="container">
     <h1 class="mt-5">Analytical Data</h1>
     <div class="row">
